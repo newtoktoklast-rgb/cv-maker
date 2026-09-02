@@ -2,9 +2,9 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import client from "@/lib/db";
-import DashboardClient from "./dashboard-client";
+import DashboardClient from "../dashboard-client";
 
-export default async function DashboardPage() {
+export default async function DocumentsPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/sign-in");
 
@@ -57,4 +57,3 @@ export default async function DashboardPage() {
     />
   );
 }
-

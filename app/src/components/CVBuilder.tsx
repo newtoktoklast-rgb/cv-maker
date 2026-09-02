@@ -17,6 +17,8 @@ import TemplateSelector from "@/components/templates/TemplateSelector";
 import CVPreview from "@/components/CVPreview";
 import ApiKeyModal from "@/components/ApiKeyModal";
 import { getStoredApiKey } from "@/lib/gemini-client";
+import { captureHtmlToPdfBase64 } from "@/lib/pdfCapture";
+
 
 const STEPS = ["Personal", "Experience", "Education", "Skills", "Custom", "Preview"];
 const SKILL_LEVEL_NAMES = ["Beginner", "Elementary", "Intermediate", "Advanced", "Expert"];
@@ -394,16 +396,39 @@ export default function CVBuilder({
     showToast("CV data cleared");
   };
 
-  const handleSave = async () => {
+  const base64ToBlob = (base64: string, mimeType = "application/pdf") => {
+    const cleanB64 = base64.includes(",") ? base64.split(",")[1] : base64;
+    const byteCharacters = atob(cleanB64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mimeType });
+  };
+
+  const handleSave = async (redirectToMerger: boolean = false) => {
     setSaving(true);
     setSaveError(null);
     try {
+      let pdfBase64: string | undefined;
+      const previewEl = document.querySelector(".cv-preview-page") as HTMLElement;
+      if (previewEl) {
+        const base64 = await captureHtmlToPdfBase64(previewEl);
+        if (base64) pdfBase64 = base64;
+      }
+
+      const payload = {
+        ...formData,
+        pdfBase64,
+      };
+
       const url = cvId ? `/api/cv/${cvId}` : "/api/cv";
       const method = cvId ? "PUT" : "POST";
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -411,7 +436,29 @@ export default function CVBuilder({
         throw new Error(errJson.error || `Server returned error (${res.status})`);
       }
 
-      router.push("/dashboard");
+      const resData = await res.json().catch(() => ({}));
+      const savedId = cvId || resData._id;
+
+      // Automatically upload generated PDF to Document Vault under category "CV"
+      if (pdfBase64) {
+        try {
+          const blob = base64ToBlob(pdfBase64);
+          const fullName = formData.personalInfo.fullName || "Resume";
+          const docFormData = new FormData();
+          docFormData.append("file", blob, `${fullName}_CV.pdf`);
+          docFormData.append("title", `Resume — ${fullName}`);
+          docFormData.append("category", "CV");
+          await fetch("/api/documents", { method: "POST", body: docFormData });
+        } catch (uploadErr) {
+          console.error("Failed to upload CV PDF to document store:", uploadErr);
+        }
+      }
+
+      if (redirectToMerger && savedId) {
+        router.push(`/dashboard/documents?selectedCvId=${savedId}`);
+      } else {
+        router.push("/dashboard");
+      }
       router.refresh();
     } catch (err: any) {
       console.error("Save failed:", err);
@@ -420,6 +467,8 @@ export default function CVBuilder({
       setSaving(false);
     }
   };
+
+
 
   return (
     <div className="builder-layout">
@@ -498,7 +547,8 @@ export default function CVBuilder({
           <span>❌ <strong>Save Error:</strong> {saveError}</span>
           <button
             type="button"
-            onClick={handleSave}
+            onClick={() => handleSave(false)}
+
             className="btn-primary"
             style={{ padding: "0.3rem 0.8rem", fontSize: "0.78rem", width: "auto" }}
           >
@@ -880,11 +930,25 @@ export default function CVBuilder({
               <button className="btn-primary builder-nav-btn" onClick={() => setStep(step + 1)} type="button">Next →</button>
             )}
             {step === STEPS.length - 1 && (
-              <button className="btn-primary builder-nav-btn" onClick={handleSave} disabled={saving} type="button">
-                {saving && <span className="spinner" />}
-                {saving ? "Saving..." : cvId ? "Update CV" : "Save CV"}
-              </button>
+              <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
+                <button className="btn-secondary builder-nav-btn" onClick={() => handleSave(false)} disabled={saving} type="button">
+                  {saving && <span className="spinner" />}
+                  {saving ? "Saving..." : cvId ? "💾 Update CV" : "💾 Save CV"}
+                </button>
+                <button
+                  className="btn-primary builder-nav-btn"
+                  onClick={() => handleSave(true)}
+                  disabled={saving}
+                  type="button"
+                  style={{ background: "linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)" }}
+                  title="Capture rendered PDF snapshot and open in Merge PDF Studio with zero mismatch"
+                >
+                  {saving ? <span className="spinner" /> : "✨"}
+                  {saving ? "Creating PDF..." : "Save & Open in PDF Merger Studio"}
+                </button>
+              </div>
             )}
+
           </div>
         </div>
 

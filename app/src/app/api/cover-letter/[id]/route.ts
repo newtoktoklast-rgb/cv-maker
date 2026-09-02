@@ -48,8 +48,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     personalInfo: body.personalInfo,
     recipient: body.recipient,
     letterDetails: body.letterDetails,
+    pdfBase64: body.pdfBase64,
     updatedAt: new Date().toISOString(),
   };
+
 
   const db = client.db();
   const result = await db

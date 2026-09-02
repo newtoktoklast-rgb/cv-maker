@@ -38,9 +38,11 @@ export async function POST(req: NextRequest) {
     personalInfo: body.personalInfo,
     recipient: body.recipient,
     letterDetails: body.letterDetails,
+    pdfBase64: body.pdfBase64 || "",
     createdAt: now,
     updatedAt: now,
   };
+
 
   const db = client.db();
   const result = await db.collection("cover_letters").insertOne(doc);

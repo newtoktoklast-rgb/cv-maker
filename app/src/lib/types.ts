@@ -64,9 +64,11 @@ export interface CVData {
   skills: Skill[];
   languages: Language[];
   customSections: CustomSection[];
+  pdfBase64?: string;
   createdAt?: string;
   updatedAt?: string;
 }
+
 
 export const emptyPersonalInfo: PersonalInfo = {
   fullName: "",
@@ -229,13 +231,16 @@ export interface CoverLetterData {
   userId: string;
   cvId?: string;
   title: string;
-  templateId: "modern" | "classic" | "executive";
+  templateId: "modern" | "classic" | "executive" | "creative";
+
   personalInfo: PersonalInfo;
   recipient: CoverLetterRecipient;
   letterDetails: CoverLetterDetails;
+  pdfBase64?: string;
   createdAt?: string;
   updatedAt?: string;
 }
+
 
 export const emptyCoverLetter: CoverLetterData = {
   userId: "",
@@ -288,4 +293,39 @@ export const dummyCoverLetterData: CoverLetterData = {
     signOff: "Sincerely,",
   },
 };
+
+/* ==================== Educational & Custom Document Types ==================== */
+
+export type DocCategory = "CV" | "Cover Letter" | "Grade8" | "Grade10" | "Grade12" | "University Certificate" | "Custom";
+
+
+export interface UserDocument {
+  _id: string;
+  userId: string;
+  title: string;
+  category: DocCategory;
+  customCategory?: string;
+  fileUrl: string;
+  fileType: "pdf" | "image";
+  fileName: string;
+  fileSize: number;
+  publicId?: string;
+  rotation?: number; // 0, 90, 180, 270 degrees
+  createdAt: string;
+  updatedAt: string;
+}
+
+
+export interface MergeOrderItem {
+  id: string;
+  type: "cv" | "cover_letter" | "document";
+}
+
+export interface MergeSelectionRequest {
+  cvId?: string;
+  coverLetterId?: string;
+  documentIds?: string[];
+  orderedItems?: MergeOrderItem[];
+}
+
 

@@ -3,8 +3,11 @@
 import { signOut } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
-import { dummyCVData } from "@/lib/types";
+import { useState, Suspense } from "react";
+import { dummyCVData, UserDocument } from "@/lib/types";
+import DocumentVault from "@/components/documents/DocumentVault";
+import DocumentMergerSection from "@/components/documents/DocumentMergerSection";
+
 
 interface CVSummary {
   _id: string;
@@ -26,6 +29,7 @@ interface Props {
   user: { name: string; email: string };
   cvs: CVSummary[];
   coverLetters?: CoverLetterSummary[];
+  documents?: UserDocument[];
 }
 
 const templateLabels: Record<string, string> = {
@@ -40,12 +44,13 @@ const templateColors: Record<string, string> = {
   executive: "#38bdf8",
 };
 
-export default function DashboardClient({ user, cvs, coverLetters = [] }: Props) {
+export default function DashboardClient({ user, cvs, coverLetters = [], documents = [] }: Props) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"resumes" | "letters">("resumes");
+  const [activeTab, setActiveTab] = useState<"resumes" | "letters" | "documents" | "merge">("resumes");
   const [deletingCV, setDeletingCV] = useState<string | null>(null);
   const [deletingLetter, setDeletingLetter] = useState<string | null>(null);
   const [creatingSample, setCreatingSample] = useState(false);
+
 
   const handleSignOut = async () => {
     await signOut();
@@ -119,9 +124,24 @@ export default function DashboardClient({ user, cvs, coverLetters = [] }: Props)
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "1.25rem" }}>
             <div>
               <h1>Career Documents Studio</h1>
-              <p>Craft tailored resumes and matching cover letters for {user.name}.</p>
+              <p>Manage resumes, cover letters, educational certificates & custom recommendations for {user.name}.</p>
             </div>
             <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+              <button
+                type="button"
+                className="btn-secondary"
+                style={{
+                  width: "auto",
+                  padding: "0.68rem 1.25rem",
+                  fontSize: "0.86rem",
+                  borderColor: "rgba(99, 102, 241, 0.4)",
+                  background: activeTab === "merge" ? "rgba(99, 102, 241, 0.3)" : "rgba(99, 102, 241, 0.15)",
+                  color: "#c7d2fe",
+                }}
+                onClick={() => setActiveTab("merge")}
+              >
+                ✨ Merge PDF Studio
+              </button>
               <button
                 type="button"
                 className="btn-secondary"
@@ -155,7 +175,7 @@ export default function DashboardClient({ user, cvs, coverLetters = [] }: Props)
         </div>
 
         {/* Tab Switcher */}
-        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.75rem", borderBottom: "1px solid var(--border-default)", paddingBottom: "0.75rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.75rem", borderBottom: "1px solid var(--border-default)", paddingBottom: "0.75rem", flexWrap: "wrap" }}>
           <button
             type="button"
             className={`builder-step ${activeTab === "resumes" ? "builder-step-active" : ""}`}
@@ -180,7 +200,34 @@ export default function DashboardClient({ user, cvs, coverLetters = [] }: Props)
             </svg>
             Cover Letters ({coverLetters.length})
           </button>
+          <button
+            type="button"
+            className={`builder-step ${activeTab === "documents" ? "builder-step-active" : ""}`}
+            onClick={() => setActiveTab("documents")}
+            style={{ borderRadius: "var(--radius-pill)", padding: "0.55rem 1.25rem", fontSize: "0.88rem" }}
+          >
+            <span>📑</span>
+            Document Vault ({documents.length})
+          </button>
+          <button
+            type="button"
+            className={`builder-step ${activeTab === "merge" ? "builder-step-active" : ""}`}
+            onClick={() => setActiveTab("merge")}
+            style={{
+              borderRadius: "var(--radius-pill)",
+              padding: "0.55rem 1.25rem",
+              fontSize: "0.88rem",
+              borderColor: activeTab === "merge" ? "#6366f1" : "rgba(99, 102, 241, 0.4)",
+              color: activeTab === "merge" ? "#c7d2fe" : "var(--text-secondary)",
+              background: activeTab === "merge" ? "rgba(99, 102, 241, 0.2)" : "transparent",
+            }}
+          >
+            <span>✨</span>
+            Merge PDF Studio
+          </button>
         </div>
+
+
 
         {/* TAB 1: RESUMES */}
         {activeTab === "resumes" && (
@@ -367,7 +414,29 @@ export default function DashboardClient({ user, cvs, coverLetters = [] }: Props)
             )}
           </>
         )}
+
+        {/* TAB 3: DOCUMENTS VAULT */}
+        {activeTab === "documents" && (
+          <DocumentVault
+            initialDocuments={documents}
+            onOpenMerger={() => setActiveTab("merge")}
+          />
+        )}
+
+        {/* TAB 4: MERGE PDF STUDIO */}
+        {activeTab === "merge" && (
+          <Suspense fallback={<div className="spinner" />}>
+            <DocumentMergerSection
+              cvs={cvs}
+              coverLetters={coverLetters}
+              documents={documents}
+            />
+          </Suspense>
+        )}
+
       </main>
     </div>
   );
 }
+
+

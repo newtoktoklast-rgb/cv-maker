@@ -40,9 +40,11 @@ export async function POST(req: NextRequest) {
     skills: body.skills || [],
     languages: body.languages || [],
     customSections: body.customSections || [],
+    pdfBase64: body.pdfBase64 || "",
     createdAt: now,
     updatedAt: now,
   };
+
 
   const db = client.db();
   const result = await db.collection("cvs").insertOne(doc);

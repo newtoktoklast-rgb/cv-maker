@@ -7,6 +7,8 @@ import { generateCoverLetterFromCV } from "@/lib/cover-letter-generator";
 import CoverLetterPreview from "./CoverLetterPreview";
 import ApiKeyModal from "@/components/ApiKeyModal";
 import { getStoredApiKey } from "@/lib/gemini-client";
+import { captureHtmlToPdfBase64 } from "@/lib/pdfCapture";
+
 
 interface Props {
   initial?: CoverLetterData;
@@ -188,22 +190,70 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
     setTimeout(() => setNotification(""), 3000);
   };
 
-  const handleSave = async () => {
+  const base64ToBlob = (base64: string, mimeType = "application/pdf") => {
+    const cleanB64 = base64.includes(",") ? base64.split(",")[1] : base64;
+    const byteCharacters = atob(cleanB64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mimeType });
+  };
+
+  const handleSave = async (redirectToMerger: boolean = false) => {
     setSaving(true);
     try {
+      let pdfBase64: string | undefined;
+      const previewEl = (document.querySelector(".cl-preview-page") as HTMLElement) || (document.querySelector(".cv-preview-page") as HTMLElement);
+      if (previewEl) {
+        const base64 = await captureHtmlToPdfBase64(previewEl);
+        if (base64) pdfBase64 = base64;
+      }
+
+      const payload = {
+        ...formData,
+        pdfBase64,
+      };
+
       const url = letterId ? `/api/cover-letter/${letterId}` : "/api/cover-letter";
       const method = letterId ? "PUT" : "POST";
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
+        const resData = await res.json().catch(() => ({}));
+        const savedId = letterId || resData._id;
+
+        // Automatically upload generated PDF to Document Vault under category "Cover Letter"
+        if (pdfBase64) {
+          try {
+            const blob = base64ToBlob(pdfBase64);
+            const compName = formData.recipient.companyName || "Application";
+            const docFormData = new FormData();
+            docFormData.append("file", blob, `${compName}_Cover_Letter.pdf`);
+            docFormData.append("title", `Cover Letter — ${compName}`);
+            docFormData.append("category", "Cover Letter");
+            await fetch("/api/documents", { method: "POST", body: docFormData });
+          } catch (uploadErr) {
+            console.error("Failed to upload Cover Letter PDF to document store:", uploadErr);
+          }
+        }
+
         setNotification("✓ Saved successfully!");
-        setTimeout(() => router.push("/dashboard"), 800);
+        if (redirectToMerger && savedId) {
+          setTimeout(() => router.push(`/dashboard/documents?selectedLetterId=${savedId}`), 400);
+        } else {
+          setTimeout(() => router.push("/dashboard"), 400);
+        }
       } else {
         alert("Failed to save cover letter.");
       }
+
+
+
     } catch {
       alert("An error occurred while saving.");
     } finally {
@@ -249,7 +299,8 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
             type="button"
             className="btn-primary"
             style={{ width: "auto", padding: "0.5rem 1.25rem", fontSize: "0.84rem" }}
-            onClick={handleSave}
+            onClick={() => handleSave(false)}
+
             disabled={saving}
           >
             {saving ? <span className="spinner" /> : "💾 Save Cover Letter"}
@@ -699,14 +750,29 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
                 <button type="button" className="btn-secondary builder-nav-btn" onClick={() => setStep(2)}>
                   ← Back to Content
                 </button>
-                <button
-                  type="button"
-                  className="btn-primary builder-nav-btn"
-                  onClick={handleSave}
-                  disabled={saving}
-                >
-                  {saving ? <span className="spinner" /> : "💾 Save & Exit"}
-                </button>
+                <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    className="btn-secondary builder-nav-btn"
+                    onClick={() => handleSave(false)}
+                    disabled={saving}
+                  >
+                    {saving && <span className="spinner" />}
+                    {saving ? "Saving..." : "💾 Save & Exit"}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-primary builder-nav-btn"
+                    onClick={() => handleSave(true)}
+                    disabled={saving}
+                    style={{ background: "linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)" }}
+                    title="Capture rendered PDF snapshot and open in Merge PDF Studio with zero mismatch"
+                  >
+                    {saving ? <span className="spinner" /> : "✨"}
+                    {saving ? "Creating PDF..." : "Save & Open in PDF Merger Studio"}
+                  </button>
+                </div>
+
               </div>
             </div>
           )}

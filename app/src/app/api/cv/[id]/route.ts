@@ -56,8 +56,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         skills: body.skills,
         languages: body.languages,
         customSections: body.customSections || [],
+        pdfBase64: body.pdfBase64,
         updatedAt: new Date().toISOString(),
       },
+
     }
   );
 
