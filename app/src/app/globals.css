@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap');
 
 :root {
-  /* Colors - ShadCN-inspired Black & White */
   --bg-primary: #ffffff;
   --bg-secondary: #fafafa;
   --bg-tertiary: #f4f4f5;
@@ -10,14 +9,12 @@
   --bg-input: #ffffff;
   --bg-input-focus: #ffffff;
 
-  /* Typography Colors */
   --text-primary: #09090b;
   --text-secondary: #71717a;
   --text-tertiary: #a1a1aa;
   --text-link: #18181b;
   --text-link-hover: #09090b;
 
-  /* Accents - Pure Black */
   --accent-primary: #18181b;
   --accent-primary-hover: #09090b;
   --accent-soft: rgba(24, 24, 27, 0.06);
@@ -25,38 +22,33 @@
   --accent-warm: #52525b;
   --accent-warm-soft: rgba(82, 82, 91, 0.08);
 
-  /* Borders */
   --border-default: #e4e4e7;
   --border-subtle: #f4f4f5;
   --border-hover: #d4d4d8;
   --border-focus: #18181b;
   --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.8);
 
-  /* Feedback */
   --error: #dc2626;
   --error-bg: rgba(220, 38, 38, 0.06);
   --success: #16a34a;
   --success-bg: rgba(22, 163, 74, 0.06);
 
-  /* Radii */
   --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-pill: 9999px;
 
-  /* Shadows - Subtle for light mode */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
   --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
 
-  /* Transitions */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --trans-fast: 150ms var(--ease-out-expo);
   --trans-normal: 240ms var(--ease-out-expo);
 }
 
-/* ============ Reset & Browser Surface Theming ============ */
+
 * {
   margin: 0;
   padding: 0;
@@ -79,13 +71,11 @@ body {
   caret-color: var(--accent-primary);
 }
 
-/* Text Selection */
 ::selection {
   background: #09090b;
   color: #ffffff;
 }
 
-/* Minimal Scrollbars */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -101,7 +91,6 @@ body {
   background: #a1a1aa;
 }
 
-/* ============ Clean Background ============ */
 .auth-background {
   position: fixed;
   inset: 0;
@@ -121,6 +110,25 @@ body {
   opacity: 0.5;
 }
 
+.landing-nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 2rem;
+  z-index: 10;
+}
+
+.landing-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+}
+
 .auth-container {
   position: relative;
   z-index: 1;
@@ -132,7 +140,6 @@ body {
   padding: 2.5rem 1.25rem;
 }
 
-/* ============ Cards ============ */
 .glass-card {
   background: var(--bg-card);
   border: 1px solid var(--border-default);
@@ -164,7 +171,6 @@ body {
   }
 }
 
-/* ============ Brand Logo ============ */
 .auth-logo {
   display: flex;
   align-items: center;
@@ -198,7 +204,6 @@ body {
   color: var(--text-primary);
 }
 
-/* ============ Form Controls ============ */
 .auth-title {
   font-size: 1.6rem;
   font-weight: 700;
@@ -221,11 +226,10 @@ body {
 
 .form-label {
   display: block;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.02em;
-  margin-bottom: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
 }
 
 .form-input {
@@ -248,7 +252,7 @@ body {
 .form-input:focus {
   background: var(--bg-input-focus);
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.12);
 }
 
 .form-textarea {
@@ -282,7 +286,6 @@ body {
   cursor: pointer;
 }
 
-/* ============ Buttons ============ */
 .btn-primary {
   width: 100%;
   padding: 0.6rem 1.25rem;
@@ -396,7 +399,6 @@ body {
   color: var(--text-secondary);
 }
 
-/* ============ Navigation ============ */
 .dashboard-layout {
   min-height: 100dvh;
   display: flex;
@@ -407,9 +409,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.85rem 2.25rem;
+  padding: 0.75rem 1.75rem;
   border-bottom: 1px solid var(--border-default);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   position: sticky;
@@ -448,32 +450,124 @@ body {
   color: var(--text-primary);
 }
 
+.dashboard-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.dashboard-nav-email {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.btn-sm {
+  width: auto !important;
+  padding: 0.45rem 0.9rem !important;
+  font-size: 0.82rem !important;
+}
+
 .dashboard-content {
   flex: 1;
-  padding: 2.5rem 2rem;
-  max-width: 1160px;
+  padding: 2rem 1.75rem;
+  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
 }
 
-.dashboard-welcome {
-  margin-bottom: 2.25rem;
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
 }
 
-.dashboard-welcome h1 {
-  font-size: 2.1rem;
-  font-weight: 800;
-  letter-spacing: -0.035em;
+.dashboard-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.2rem;
 }
 
-.dashboard-welcome p {
+.dashboard-header p {
   color: var(--text-secondary);
-  font-size: 0.96rem;
+  font-size: 0.875rem;
 }
 
-/* ============ Dashboard Grid & Cards ============ */
+.dashboard-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.dashboard-tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: 1.75rem;
+  overflow-x: auto;
+}
+
+.dashboard-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color var(--trans-fast), border-color var(--trans-fast);
+  white-space: nowrap;
+}
+
+.dashboard-tab:hover {
+  color: var(--text-primary);
+}
+
+.dashboard-tab-active {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+  font-weight: 600;
+}
+
+.dashboard-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.dashboard-tab-active .dashboard-tab-count {
+  background: #18181b;
+  color: #ffffff;
+}
+
+.dashboard-empty-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+
 .cv-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
@@ -482,37 +576,38 @@ body {
 }
 
 .cv-card {
-  padding: 1.6rem;
-  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 1rem;
+  min-height: 170px;
+  transition: box-shadow var(--trans-fast), border-color var(--trans-fast);
 }
 
 .cv-card:hover {
-  transform: translateY(-3px);
   box-shadow: var(--shadow-hover);
+  border-color: var(--border-hover);
 }
 
 .cv-card-template {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  font-size: 0.72rem;
+  gap: 0.4rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 0.25rem 0.65rem;
-  border: 1px solid;
-  border-radius: var(--radius-pill);
-  margin-bottom: 1rem;
-  width: fit-content;
+  color: var(--text-tertiary);
+  margin-bottom: 0.6rem;
 }
 
 .cv-card-template-dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
+  background: var(--text-tertiary);
 }
 
 .cv-card-name {
@@ -548,7 +643,6 @@ body {
   width: auto;
 }
 
-/* ============ Dashboard Empty State ============ */
 .dashboard-empty {
   display: flex;
   flex-direction: column;
@@ -591,7 +685,6 @@ body {
   max-width: 440px;
 }
 
-/* ============ Landing Page (Persuade Mode) ============ */
 .landing-container {
   min-height: 100dvh;
   display: flex;
@@ -721,13 +814,11 @@ body {
   line-height: 1.55;
 }
 
-/* ============ Builder Layout ============ */
 .builder-layout {
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* Top toolbar */
 .builder-top-toolbar {
   display: flex;
   justify-content: space-between;
@@ -806,7 +897,6 @@ body {
   background: var(--error-bg);
 }
 
-/* Dummy banner in Step 0 */
 .dummy-banner {
   display: flex;
   justify-content: space-between;
@@ -838,7 +928,6 @@ body {
   margin-top: 0;
 }
 
-/* Segmented Step Navigation */
 .builder-progress {
   display: flex;
   gap: 0.35rem;
@@ -878,7 +967,6 @@ body {
   font-weight: 600;
 }
 
-/* All active steps use same minimal black style */
 .builder-step[data-step-index].builder-step-active {
   background: #18181b;
   border-color: #18181b;
@@ -997,7 +1085,6 @@ body {
   }
 }
 
-/* Builder Item Entries */
 .builder-entry {
   padding: 1.4rem;
   margin-bottom: 1.25rem;
@@ -1072,7 +1159,6 @@ body {
   font-size: 0.84rem;
 }
 
-/* Inline entries */
 .builder-inline-entry {
   display: flex;
   gap: 0.6rem;
@@ -1111,7 +1197,6 @@ body {
   color: var(--error);
 }
 
-/* Level picker */
 .builder-level-picker {
   display: flex;
   gap: 5px;
@@ -1152,7 +1237,6 @@ body {
   text-align: center;
 }
 
-/* Hardening: Toast Notifications */
 .toast-container {
   position: fixed;
   bottom: 1.5rem;
@@ -1208,7 +1292,6 @@ body {
   color: #ffffff;
 }
 
-/* Confirmation Modal */
 .reset-modal-overlay {
   position: fixed;
   inset: 0;
@@ -1279,7 +1362,6 @@ body {
   justify-content: flex-end;
 }
 
-/* Date validation badge */
 .date-warning-badge {
   display: inline-flex;
   align-items: center;
@@ -1295,7 +1377,6 @@ body {
   animation: fade-in 0.2s ease-out;
 }
 
-/* Builder entry hover */
 .builder-entry {
   transition: transform var(--trans-normal), border-color var(--trans-normal), box-shadow var(--trans-normal);
 }
@@ -1309,7 +1390,6 @@ body {
   border-color: var(--text-secondary);
 }
 
-/* Navigation buttons */
 .builder-nav {
   display: flex;
   gap: 0.85rem;
@@ -1324,7 +1404,6 @@ body {
   margin-top: 0;
 }
 
-/* Custom Sections - Clean border, no side-tab tell */
 .custom-section-card {
   position: relative;
 }
@@ -1354,7 +1433,6 @@ body {
   color: var(--text-primary);
 }
 
-/* ============ Template Selector ============ */
 .template-selector {
   margin-bottom: 1.75rem;
 }
@@ -1434,7 +1512,6 @@ body {
   color: white;
 }
 
-/* Template Miniature Previews */
 .template-preview-mini {
   height: 146px;
   background: #ffffff;
@@ -1537,7 +1614,6 @@ body {
   gap: 3px;
 }
 
-/* ============ CV Preview Component ============ */
 .cv-preview-wrapper {
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
@@ -1591,7 +1667,6 @@ body {
   font-size: 5.5px;
 }
 
-/* ============ CV Template 1: Swiss Modernist (Atelier) ============ */
 .cv-modern {
   display: flex;
   height: 100%;
@@ -1799,7 +1874,6 @@ body {
   margin-bottom: 2px;
 }
 
-/* ============ CV Template 2: Editorial Monograph (Meridian) ============ */
 .cv-preview-page:has(.cv-classic) {
   background: #faf8f5 !important;
 }
@@ -1954,7 +2028,6 @@ body {
   margin-bottom: 2px;
 }
 
-/* ============ CV Template 3: Executive Minimalist (Metropolis) ============ */
 .cv-exec {
   width: 100%;
   height: 100%;
@@ -2118,9 +2191,7 @@ body {
   margin-bottom: 2px;
 }
 
-/* ============ Cover Letter Templates (Live Preview Scaling) ============ */
 
-/* Modern Cover Letter */
 .cl-modern {
   width: 100%;
   height: 100%;
@@ -2259,7 +2330,6 @@ body {
   color: #64748b;
 }
 
-/* Classic Cover Letter */
 .cl-classic {
   width: 100%;
   height: 100%;
@@ -2371,7 +2441,6 @@ body {
   color: #1c1917;
 }
 
-/* Executive Cover Letter */
 .cl-exec {
   width: 100%;
   height: 100%;
@@ -2446,7 +2515,6 @@ body {
   font-weight: 600;
 }
 
-/* ============ Template 4: Nordic Minimalist Live Screen CSS ============ */
 .cv-minimalist {
   width: 100%;
   min-height: 100%;
@@ -2571,7 +2639,6 @@ body {
   margin-left: 1.1rem;
 }
 
-/* ============ Template 5: Creative Studio Live Screen CSS ============ */
 .cv-creative {
   width: 100%;
   min-height: 100%;
@@ -2754,7 +2821,6 @@ body {
   color: #166534;
 }
 
-/* ============ Template 6: Technical Architect Live Screen CSS ============ */
 .cv-tech {
   width: 100%;
   min-height: 100%;
@@ -2960,7 +3026,6 @@ body {
   color: #64748b;
 }
 
-/* ============ Responsive & Print ============ */
 @media (max-width: 640px) {
   .auth-card { padding: 1.85rem; }
   .dashboard-nav { padding: 0.75rem 1rem; }
@@ -2977,7 +3042,6 @@ body {
   .cv-preview-page { position: absolute; left: 0; top: 0; width: 210mm; height: 297mm; }
 }
 
-/* ============ Modals & Popup Overlays ============ */
 .modal-backdrop {
   position: fixed;
   top: 0;
