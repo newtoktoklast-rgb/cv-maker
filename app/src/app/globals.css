@@ -53,11 +53,15 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
   scroll-behavior: smooth;
   color-scheme: light;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -69,6 +73,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
   min-height: 100dvh;
   caret-color: var(--accent-primary);
+  overflow-x: hidden;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+button, a, [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+}
+
+input, select, textarea {
+  touch-action: manipulation;
+  font-size: max(16px, 1em);
 }
 
 ::selection {
@@ -3026,14 +3045,403 @@ body {
   color: #64748b;
 }
 
-@media (max-width: 640px) {
-  .auth-card { padding: 1.85rem; }
-  .dashboard-nav { padding: 0.75rem 1rem; }
-  .dashboard-content { padding: 1.5rem 1rem; }
-  .dashboard-welcome h1 { font-size: 1.6rem; }
-  .builder-inline-entry { flex-wrap: wrap; }
-  .builder-inline-select { width: 100%; }
-  .landing-showcase { grid-template-columns: 1fr; }
+/* ── Responsive ─────────────────────────────── */
+
+/* Tablet & below (≤ 768px) */
+@media (max-width: 768px) {
+
+  /* Landing */
+  .landing-nav {
+    padding: 1rem 1.25rem;
+  }
+
+  .landing-container {
+    padding: 5rem 1.25rem 3rem;
+  }
+
+  .landing-content h1 {
+    font-size: clamp(2rem, 7vw, 3rem);
+  }
+
+  .landing-content p {
+    font-size: 1rem;
+  }
+
+  .landing-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .landing-buttons .btn-primary,
+  .landing-buttons .btn-secondary {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .landing-showcase {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Auth */
+  .auth-card {
+    padding: 1.75rem 1.25rem;
+  }
+
+  /* Dashboard nav */
+  .dashboard-nav {
+    padding: 0.7rem 1rem;
+  }
+
+  .dashboard-nav-email {
+    display: none;
+  }
+
+  /* Dashboard content */
+  .dashboard-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .dashboard-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .dashboard-header-actions .btn-primary,
+  .dashboard-header-actions .btn-secondary {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Tabs */
+  .dashboard-tabs {
+    gap: 0;
+  }
+
+  .dashboard-tab {
+    padding: 0.55rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  /* CV grid */
+  .cv-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Builder */
+  .builder-body {
+    flex-direction: column;
+  }
+
+  .builder-preview {
+    display: none;
+  }
+
+  .builder-top-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .builder-top-toolbar-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .builder-progress {
+    gap: 0.25rem;
+  }
+
+  .builder-step {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .builder-grid-2,
+  .builder-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .builder-inline-entry {
+    flex-wrap: wrap;
+  }
+
+  .builder-inline-select {
+    width: 100%;
+  }
+
+  /* Template selector */
+  .template-selector-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  /* Reset modal */
+  .reset-modal-actions {
+    flex-direction: column;
+  }
+
+  .reset-modal-actions .btn-primary,
+  .reset-modal-actions .btn-secondary {
+    width: 100%;
+  }
+}
+
+/* Mobile (≤ 480px) */
+@media (max-width: 480px) {
+
+  .landing-nav-brand span {
+    display: none;
+  }
+
+  .landing-content h1 {
+    font-size: clamp(1.75rem, 8vw, 2.4rem);
+    letter-spacing: -0.03em;
+  }
+
+  .landing-pill {
+    font-size: 0.72rem;
+  }
+
+  .auth-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .auth-title {
+    font-size: 1.3rem;
+  }
+
+  .dashboard-content {
+    padding: 1.25rem 0.875rem;
+  }
+
+  .dashboard-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dashboard-tab {
+    padding: 0.5rem 0.65rem;
+    font-size: 0.75rem;
+  }
+
+  .dashboard-tab-count {
+    display: none;
+  }
+
+  .cv-card {
+    padding: 1rem;
+  }
+
+  .cv-card-actions {
+    flex-direction: column;
+  }
+
+  .cv-card-actions .btn-secondary,
+  .cv-card-actions .btn-danger {
+    width: 100%;
+    flex: unset;
+  }
+
+  .builder-nav {
+    flex-direction: column;
+  }
+
+  .builder-nav .btn-primary,
+  .builder-nav .btn-secondary {
+    width: 100%;
+  }
+
+  .builder-entry {
+    padding: 1rem;
+  }
+
+  .toast-container {
+    bottom: 1rem;
+    right: 0.75rem;
+    left: 0.75rem;
+  }
+
+  .toast-card {
+    width: 100%;
+  }
+
+  .dashboard-empty {
+    padding: 3rem 1.25rem;
+  }
+
+  .dashboard-empty-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dashboard-empty-actions .btn-primary,
+  .dashboard-empty-actions .btn-secondary {
+    width: 100%;
+  }
+}
+
+/* Small phones (≤ 375px — iPhone SE, Galaxy A series) */
+@media (max-width: 375px) {
+
+  html {
+    font-size: 15px;
+  }
+
+  .landing-content h1 {
+    font-size: 1.65rem;
+    line-height: 1.12;
+  }
+
+  .landing-content p {
+    font-size: 0.9rem;
+  }
+
+  .landing-pill {
+    font-size: 0.68rem;
+    padding: 0.25rem 0.7rem;
+  }
+
+  .landing-buttons .btn-primary,
+  .landing-buttons .btn-secondary {
+    padding: 0.7rem 1.25rem;
+    font-size: 0.88rem;
+  }
+
+  .auth-card {
+    padding: 1.25rem 0.9rem;
+  }
+
+  .auth-title {
+    font-size: 1.2rem;
+  }
+
+  .auth-subtitle {
+    font-size: 0.82rem;
+  }
+
+  .form-input {
+    font-size: 0.875rem;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    font-size: 0.84rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .dashboard-nav {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .dashboard-nav-brand span {
+    font-size: 0.9rem;
+  }
+
+  .dashboard-content {
+    padding: 1rem 0.75rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.1rem;
+  }
+
+  .dashboard-header p {
+    font-size: 0.8rem;
+  }
+
+  .dashboard-tab {
+    padding: 0.45rem 0.55rem;
+    font-size: 0.72rem;
+  }
+
+  .cv-card {
+    padding: 0.875rem;
+  }
+
+  .cv-card-name {
+    font-size: 1rem;
+  }
+
+  .cv-card-actions {
+    gap: 0.4rem;
+  }
+
+  .builder-section-title {
+    font-size: 1.15rem;
+  }
+
+  .builder-entry {
+    padding: 0.875rem;
+  }
+
+  .builder-step {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .builder-step-label {
+    display: none;
+  }
+
+  .reset-modal-card {
+    padding: 1.1rem;
+  }
+
+  .toast-card {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.85rem;
+  }
+}
+
+/* Tiny phones (≤ 320px — iPhone SE 1st gen, older Android) */
+@media (max-width: 320px) {
+
+  html {
+    font-size: 14px;
+  }
+
+  .landing-container {
+    padding: 4.5rem 0.875rem 2rem;
+  }
+
+  .landing-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .auth-card {
+    padding: 1.1rem 0.75rem;
+  }
+
+  .dashboard-content {
+    padding: 0.875rem 0.65rem;
+  }
+
+  .dashboard-header-actions {
+    gap: 0.4rem;
+  }
+
+  .cv-card {
+    padding: 0.75rem;
+  }
+
+  .builder-progress {
+    gap: 0.2rem;
+  }
+
+  .builder-add-btn {
+    font-size: 0.78rem;
+  }
 }
 
 @media print {
