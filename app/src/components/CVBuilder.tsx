@@ -18,6 +18,23 @@ import CVPreview from "@/components/CVPreview";
 import ApiKeyModal from "@/components/ApiKeyModal";
 import { getStoredApiKey } from "@/lib/gemini-client";
 import { captureHtmlToPdfBase64 } from "@/lib/pdfCapture";
+import {
+  IconKey,
+  IconSave,
+  IconSparkles,
+  IconZap,
+  IconCheck,
+  IconFile,
+  IconX,
+  IconAlertCircle,
+  IconAward,
+  IconTarget,
+  IconCertificate,
+  IconBriefcase,
+  IconUsers,
+  IconBook,
+  IconPlus,
+} from "@/components/Icons";
 
 
 const STEPS = ["Personal", "Experience", "Education", "Skills", "Custom", "Preview"];
@@ -35,7 +52,7 @@ function getDateValidationError(startDate?: string, endDate?: string, current?: 
     const startYear = parseInt(startMatch[0], 10);
     const endYear = parseInt(endMatch[0], 10);
     if (endYear < startYear) {
-      return `⚠️ End date year (${endYear}) is before start date year (${startYear}).`;
+      return `End date year (${endYear}) is before start date year (${startYear}).`;
     }
   }
 
@@ -43,7 +60,7 @@ function getDateValidationError(startDate?: string, endDate?: string, current?: 
   const startD = Date.parse(startDate);
   const endD = Date.parse(endDate);
   if (!isNaN(startD) && !isNaN(endD) && endD < startD) {
-    return "⚠️ End date cannot be before start date.";
+    return "End date cannot be before start date.";
   }
 
   return null;
@@ -91,7 +108,7 @@ export default function CVBuilder({
     }
 
     setParsingPdf(true);
-    setPdfNotice({ text: "✨ Gemini AI is analyzing your resume PDF and extracting structured data..." });
+    setPdfNotice({ text: "Gemini AI is analyzing your resume PDF and extracting structured data..." });
 
     try {
       const formPayload = new FormData();
@@ -160,7 +177,7 @@ export default function CVBuilder({
           })),
         }));
 
-        setPdfNotice({ text: `✓ Successfully extracted resume from "${file.name}" with Gemini AI!` });
+        setPdfNotice({ text: `Successfully extracted resume from "${file.name}" with Gemini AI!` });
         setStep(0);
         setTimeout(() => setPdfNotice(null), 6000);
       }
@@ -496,9 +513,9 @@ export default function CVBuilder({
             onClick={() => fileInputRef.current?.click()}
             disabled={parsingPdf}
             title="Upload an existing resume PDF to auto-fill all form fields with Gemini AI"
-            style={{ borderColor: "rgba(168, 85, 247, 0.4)", background: "rgba(168, 85, 247, 0.12)", color: "#e9d5ff" }}
+            style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
           >
-            {parsingPdf ? <span className="spinner" /> : "📄"}
+            {parsingPdf ? <span className="spinner" /> : <IconFile size={14} />}
             {parsingPdf ? "Gemini Parsing PDF..." : "Auto-Fill from PDF"}
           </button>
           <button
@@ -506,16 +523,18 @@ export default function CVBuilder({
             className="btn-dummy-data"
             onClick={fillDummyData}
             title="Populate all fields with comprehensive sample CV data"
+            style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
           >
-            ⚡ Sample Data
+            <IconZap size={14} /> Sample Data
           </button>
           <button
             type="button"
             className="btn-clear-data"
             onClick={() => setApiKeyModalOpen(true)}
             title="Configure Google Gemini API Key"
+            style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
           >
-            🔑 AI Key
+            <IconKey size={14} /> AI Key
           </button>
           <button
             type="button"
@@ -537,14 +556,16 @@ export default function CVBuilder({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            borderColor: "rgba(251, 113, 133, 0.4)",
-            background: "rgba(251, 113, 133, 0.12)",
-            color: "var(--error)",
+            borderColor: "var(--border-default)",
+            background: "var(--bg-secondary)",
+            color: "var(--text-primary)",
             fontSize: "0.88rem",
             fontWeight: 500,
           }}
         >
-          <span>❌ <strong>Save Error:</strong> {saveError}</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem" }}>
+            <IconAlertCircle size={16} /> <strong>Save Error:</strong> {saveError}
+          </span>
           <button
             type="button"
             onClick={() => handleSave(false)}
@@ -566,20 +587,24 @@ export default function CVBuilder({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            borderColor: pdfNotice.isError ? "rgba(251, 113, 133, 0.35)" : "rgba(168, 85, 247, 0.35)",
-            background: pdfNotice.isError ? "rgba(251, 113, 133, 0.1)" : "rgba(168, 85, 247, 0.1)",
-            color: pdfNotice.isError ? "var(--error)" : "#e9d5ff",
+            borderColor: "var(--border-default)",
+            background: "var(--bg-secondary)",
+            color: "var(--text-primary)",
             fontSize: "0.88rem",
             fontWeight: 500,
           }}
         >
-          <span>{pdfNotice.text}</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem" }}>
+            {pdfNotice.isError ? <IconAlertCircle size={16} /> : <IconCheck size={16} />}
+            {pdfNotice.text}
+          </span>
           <button
             type="button"
             onClick={() => setPdfNotice(null)}
-            style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", fontSize: "1rem" }}
+            aria-label="Close"
+            style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", display: "flex", alignItems: "center", padding: "0.2rem" }}
           >
-            ✕
+            <IconX size={15} />
           </button>
         </div>
       )}
@@ -594,7 +619,7 @@ export default function CVBuilder({
             onClick={() => setStep(i)}
             type="button"
           >
-            <span className="builder-step-num">{i < step ? "✓" : i + 1}</span>
+            <span className="builder-step-num">{i < step ? <IconCheck size={12} /> : i + 1}</span>
             <span className="builder-step-label">{label}</span>
           </button>
         ))}
@@ -609,7 +634,9 @@ export default function CVBuilder({
               {!formData.personalInfo.fullName && (
                 <div className="dummy-banner glass-card">
                   <div className="dummy-banner-text">
-                    <span style={{ fontSize: "1.2rem", marginRight: "0.4rem" }}>✨</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", marginRight: "0.4rem" }}>
+                      <IconSparkles size={18} />
+                    </span>
                     <span>
                       <strong>Have an existing CV?</strong> Upload your PDF to let Gemini AI extract your experience, or load sample data.
                     </span>
@@ -619,8 +646,9 @@ export default function CVBuilder({
                       type="button"
                       className="btn-primary dummy-banner-btn"
                       onClick={() => fileInputRef.current?.click()}
+                      style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
                     >
-                      📄 Upload Resume PDF
+                      <IconFile size={14} /> Upload Resume PDF
                     </button>
                     <button type="button" className="btn-secondary dummy-banner-btn" onClick={fillDummyData}>
                       Load Sample Data
@@ -846,20 +874,21 @@ export default function CVBuilder({
                 </span>
                 <div className="custom-section-suggestions" style={{ display: "inline-flex", flexWrap: "wrap", gap: "0.4rem" }}>
                   {[
-                    { label: "🏆 Awards", title: "Awards & Honors" },
-                    { label: "🎯 Hobbies", title: "Hobbies & Interests" },
-                    { label: "📜 Certifications", title: "Certifications" },
-                    { label: "💼 Projects", title: "Projects" },
-                    { label: "🤝 Volunteering", title: "Volunteering" },
-                    { label: "📖 Publications", title: "Publications" },
+                    { label: "Awards", title: "Awards & Honors", icon: <IconAward size={13} /> },
+                    { label: "Hobbies", title: "Hobbies & Interests", icon: <IconTarget size={13} /> },
+                    { label: "Certifications", title: "Certifications", icon: <IconCertificate size={13} /> },
+                    { label: "Projects", title: "Projects", icon: <IconBriefcase size={13} /> },
+                    { label: "Volunteering", title: "Volunteering", icon: <IconUsers size={13} /> },
+                    { label: "Publications", title: "Publications", icon: <IconBook size={13} /> },
                   ].map((s) => (
                     <button
                       key={s.title}
                       type="button"
                       className="custom-section-suggestion-tag"
                       onClick={() => addCustomSectionWithTitle(s.title)}
+                      style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}
                     >
-                      + {s.label}
+                      <IconPlus size={12} /> {s.icon} <span>{s.label}</span>
                     </button>
                   ))}
                 </div>
@@ -932,7 +961,7 @@ export default function CVBuilder({
               <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
                 <button className="btn-secondary builder-nav-btn" onClick={() => handleSave(false)} disabled={saving} type="button">
                   {saving && <span className="spinner" />}
-                  {saving ? "Saving..." : cvId ? "💾 Update CV" : "💾 Save CV"}
+                  {saving ? "Saving..." : cvId ? <><IconSave size={14} style={{ marginRight: 6 }} /> Update CV</> : <><IconSave size={14} style={{ marginRight: 6 }} /> Save CV</>}
                 </button>
                 <button
                   className="btn-primary builder-nav-btn"
@@ -940,8 +969,9 @@ export default function CVBuilder({
                   disabled={saving}
                   type="button"
                   title="Capture rendered PDF snapshot and open in Merge PDF Studio with zero mismatch"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
                 >
-                  {saving ? <span className="spinner" /> : "✨"}
+                  {saving ? <span className="spinner" /> : <IconSparkles size={16} />}
                   {saving ? "Creating PDF..." : "Save & Open in PDF Merger Studio"}
                 </button>
               </div>
@@ -962,7 +992,9 @@ export default function CVBuilder({
       {resetModalOpen && (
         <div className="reset-modal-overlay" onClick={() => setResetModalOpen(false)}>
           <div className="reset-modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="reset-modal-icon">⚠️</div>
+            <div className="reset-modal-icon" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <IconAlertCircle size={28} />
+            </div>
             <h3 className="reset-modal-title">Clear all CV fields?</h3>
             <p className="reset-modal-desc">
               This action will reset your personal info, experience, education, skills, and custom sections. This cannot be undone once confirmed.
@@ -980,7 +1012,7 @@ export default function CVBuilder({
                 type="button"
                 className="btn-primary"
                 onClick={executeClearAllData}
-                style={{ width: "auto", padding: "0.55rem 1.1rem", background: "linear-gradient(135deg, #fb7185 0%, #e11d48 100%)", borderColor: "#fb7185" }}
+                style={{ width: "auto", padding: "0.55rem 1.1rem" }}
               >
                 Yes, Reset All Data
               </button>
@@ -993,7 +1025,9 @@ export default function CVBuilder({
       {toast && (
         <div className="toast-container">
           <div className="toast-card">
-            <span>✨ {toast.message}</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>
+              <IconSparkles size={14} /> {toast.message}
+            </span>
             {toast.undoAction && (
               <button
                 type="button"

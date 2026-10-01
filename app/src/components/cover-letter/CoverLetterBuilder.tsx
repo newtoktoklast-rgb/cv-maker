@@ -8,6 +8,7 @@ import CoverLetterPreview from "./CoverLetterPreview";
 import ApiKeyModal from "@/components/ApiKeyModal";
 import { getStoredApiKey } from "@/lib/gemini-client";
 import { captureHtmlToPdfBase64 } from "@/lib/pdfCapture";
+import { IconKey, IconSave, IconSparkles, IconZap, IconCheck } from "@/components/Icons";
 
 
 interface Props {
@@ -87,7 +88,7 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
     }
 
     setGeneratingAI(true);
-    setNotification("✨ Gemini AI is analyzing your CV and composing your letter...");
+    setNotification("Gemini AI is analyzing your CV and composing your letter...");
 
     try {
       const res = await fetch("/api/ai/generate-cover-letter", {
@@ -129,7 +130,7 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
         letterDetails,
       }));
 
-      setNotification("✓ Cover letter crafted with Gemini 2.0 Flash!");
+      setNotification("Cover letter crafted with Gemini 2.0 Flash!");
       setTimeout(() => setNotification(""), 5000);
     } catch (err: any) {
       setNotification(err.message || "Gemini generation failed.");
@@ -177,7 +178,7 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
       letterDetails: generated,
     }));
 
-    setNotification("✨ Cover letter generated from CV!");
+    setNotification("Cover letter generated from CV!");
     setTimeout(() => setNotification(""), 3000);
   };
 
@@ -186,7 +187,7 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
     setTargetCompany(dummyCoverLetterData.recipient.companyName);
     setTargetRole(dummyCoverLetterData.recipient.jobTitle);
     setHiringManager(dummyCoverLetterData.recipient.hiringManager);
-    setNotification("⚡ Loaded sample cover letter data!");
+    setNotification("Loaded sample cover letter data!");
     setTimeout(() => setNotification(""), 3000);
   };
 
@@ -242,7 +243,7 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
           }
         }
 
-        setNotification("✓ Saved successfully!");
+        setNotification("Saved successfully!");
         if (redirectToMerger && savedId) {
           setTimeout(() => router.push(`/dashboard/documents?selectedLetterId=${savedId}`), 400);
         } else {
@@ -269,7 +270,8 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
           <span className="builder-title-badge">Cover Letter Studio</span>
           <span className="builder-current-step-label">{STEPS[step]}</span>
           {notification && (
-            <span style={{ color: "#34d399", fontSize: "0.85rem", fontWeight: 600 }}>
+            <span style={{ color: "var(--text-primary)", fontSize: "0.85rem", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
+              <IconCheck size={14} />
               {notification}
             </span>
           )}
@@ -281,29 +283,29 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
             className="btn-clear-data"
             onClick={() => setApiKeyModalOpen(true)}
             title="Configure Google Gemini API Key"
+            style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
           >
-            🔑 AI Key
+            <IconKey size={14} /> AI Key
           </button>
           <button
             type="button"
             className="btn-dummy-data"
             onClick={handleLoadDummy}
             title="Populate with sample cover letter"
+            style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 14, height: 14 }}>
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
+            <IconZap size={14} />
             Auto-Fill Sample
           </button>
           <button
             type="button"
             className="btn-primary"
-            style={{ width: "auto", padding: "0.5rem 1.25rem", fontSize: "0.84rem" }}
+            style={{ width: "auto", padding: "0.5rem 1.25rem", fontSize: "0.84rem", display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
             onClick={() => handleSave(false)}
 
             disabled={saving}
           >
-            {saving ? <span className="spinner" /> : "💾 Save Cover Letter"}
+            {saving ? <span className="spinner" /> : <><IconSave size={14} /> Save Cover Letter</>}
           </button>
         </div>
       </div>
@@ -317,7 +319,7 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
             onClick={() => setStep(i)}
             type="button"
           >
-            <span className="builder-step-num">{i < step ? "✓" : i + 1}</span>
+            <span className="builder-step-num">{i < step ? <IconCheck size={12} /> : i + 1}</span>
             <span className="builder-step-label">{label}</span>
           </button>
         ))}
@@ -420,16 +422,16 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
                     onClick={handleGenerateWithGemini}
                     disabled={generatingAI}
                   >
-                    {generatingAI ? <span className="spinner" /> : "✨"}
+                    {generatingAI ? <span className="spinner" /> : <IconSparkles size={16} />}
                     {generatingAI ? "Gemini AI Generating..." : "AI Generate with Gemini 2.0"}
                   </button>
                   <button
                     type="button"
                     className="btn-secondary"
-                    style={{ flex: 1, padding: "0.85rem 1.4rem", minWidth: "160px" }}
+                    style={{ flex: 1, padding: "0.85rem 1.4rem", minWidth: "160px", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.4rem" }}
                     onClick={handleGenerate}
                   >
-                    ⚡ Quick Template Fill
+                    <IconZap size={15} /> Quick Template Fill
                   </button>
                 </div>
               </div>
@@ -757,7 +759,7 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
                     disabled={saving}
                   >
                     {saving && <span className="spinner" />}
-                    {saving ? "Saving..." : "💾 Save & Exit"}
+                    {saving ? "Saving..." : <><IconSave size={14} style={{ marginRight: 6 }} /> Save & Exit</>}
                   </button>
                   <button
                     type="button"
@@ -765,8 +767,9 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
                     onClick={() => handleSave(true)}
                     disabled={saving}
                     title="Capture rendered PDF snapshot and open in Merge PDF Studio with zero mismatch"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
                   >
-                    {saving ? <span className="spinner" /> : "✨"}
+                    {saving ? <span className="spinner" /> : <IconSparkles size={16} />}
                     {saving ? "Creating PDF..." : "Save & Open in PDF Merger Studio"}
                   </button>
                 </div>

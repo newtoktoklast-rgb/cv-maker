@@ -6,6 +6,20 @@ import { UserDocument, CVData, CoverLetterData } from "@/lib/types";
 import CVPreview from "@/components/CVPreview";
 import CoverLetterPreview from "@/components/cover-letter/CoverLetterPreview";
 import { captureHtmlToPdfBase64 } from "@/lib/pdfCapture";
+import {
+  IconEye,
+  IconDownload,
+  IconFolder,
+  IconPackage,
+  IconFile,
+  IconRotate,
+  IconRotateCcw,
+  IconRotateCw,
+  IconChevronUp,
+  IconChevronDown,
+  IconX,
+  IconGripVertical,
+} from "@/components/Icons";
 
 interface CVSummary {
   _id: string;
@@ -399,18 +413,20 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
               className="btn-secondary"
               onClick={handlePreviewMergedPdf}
               disabled={isPreviewing || isMerging || orderedItems.length === 0}
-              style={{ width: "auto", padding: "0.6rem 1.15rem", fontSize: "0.85rem" }}
+              style={{ width: "auto", padding: "0.6rem 1.15rem", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "0.45rem" }}
             >
-              {isPreviewing ? <span className="spinner" /> : "👁️ Preview Merged PDF"}
+              {isPreviewing ? <span className="spinner" /> : <IconEye size={15} />}
+              <span>Preview Merged PDF</span>
             </button>
 
             <button
               className="btn-primary"
               onClick={handleMerge}
               disabled={isMerging || isPreviewing || orderedItems.length === 0}
-              style={{ width: "auto", padding: "0.6rem 1.35rem", fontSize: "0.85rem" }}
+              style={{ width: "auto", padding: "0.6rem 1.35rem", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "0.45rem" }}
             >
-              {isMerging ? <span className="spinner" /> : "Download Combined PDF"}
+              {isMerging ? <span className="spinner" /> : <IconDownload size={15} />}
+              <span>Download Combined PDF</span>
             </button>
           </div>
         </div>
@@ -430,7 +446,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
         <div className="glass-card" style={{ padding: "1.25rem", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.85rem" }}>
             <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.5rem", margin: 0 }}>
-              <span>📁</span> 1. Select Documents ({selectedDocIds.length}/{documents.length})
+              <IconFolder size={17} /> 1. Select Documents ({selectedDocIds.length}/{documents.length})
             </h3>
             <div style={{ display: "flex", gap: "0.5rem" }}>
               <button onClick={selectAllDocs} type="button" style={{ background: "none", border: "none", color: "var(--text-primary)", fontSize: "0.78rem", cursor: "pointer", fontWeight: 600 }}>
@@ -472,15 +488,16 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                 return (
                   <div key={catName} style={{ background: "var(--bg-secondary)", borderRadius: "var(--radius-md)", padding: "0.75rem", border: "1px solid var(--border-default)" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                      <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-primary)" }}>
-                        {catName} ({catDocs.length} {catDocs.length === 1 ? "file" : "files"})
+                      <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-primary)", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
+                        <IconFolder size={14} />
+                        <span>{catName} ({catDocs.length} {catDocs.length === 1 ? "file" : "files"})</span>
                       </span>
                       <button
                         type="button"
                         onClick={toggleCatGroup}
                         style={{ background: "none", border: "none", color: allCatSelected ? "var(--text-primary)" : "var(--text-tertiary)", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
                       >
-                        {allCatSelected ? "✓ Deselect Store" : "+ Select Entire Store"}
+                        {allCatSelected ? "Deselect Store" : "+ Select Entire Store"}
                       </button>
                     </div>
 
@@ -513,8 +530,8 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                               <div style={{ fontSize: "0.84rem", fontWeight: 600, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
                                 <span>{doc.title}</span>
                                 {effectiveRotation > 0 && (
-                                  <span style={{ fontSize: "0.68rem", background: "var(--bg-secondary)", color: "var(--text-secondary)", border: "1px solid var(--border-default)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontWeight: 600 }}>
-                                    🔄 {effectiveRotation}°
+                                  <span style={{ fontSize: "0.68rem", background: "var(--bg-secondary)", color: "var(--text-secondary)", border: "1px solid var(--border-default)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+                                    <IconRotate size={10} /> {effectiveRotation}°
                                   </span>
                                 )}
                               </div>
@@ -536,9 +553,13 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                                   fontSize: "0.72rem",
                                   padding: "0.2rem 0.5rem",
                                   whiteSpace: "nowrap",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "0.25rem",
                                 }}
                               >
-                                Preview
+                                <IconEye size={12} />
+                                <span>Preview</span>
                               </button>
                               <button
                                 type="button"
@@ -549,9 +570,13 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                                   fontSize: "0.72rem",
                                   padding: "0.2rem 0.5rem",
                                   whiteSpace: "nowrap",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "0.25rem",
                                 }}
                               >
-                                🔄 {effectiveRotation > 0 ? `${effectiveRotation}°` : "Rotate"}
+                                <IconRotate size={12} />
+                                <span>{effectiveRotation > 0 ? `${effectiveRotation}°` : "Rotate"}</span>
                               </button>
                             </div>
 
@@ -572,7 +597,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.85rem" }}>
               <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span>📦</span> PDF Page Order ({orderedItems.length})
+                <IconPackage size={17} /> PDF Page Order ({orderedItems.length})
               </h3>
               <span style={{ fontSize: "0.72rem", color: "var(--text-secondary)", background: "var(--bg-secondary)", border: "1px solid var(--border-default)", padding: "0.2rem 0.5rem", borderRadius: "var(--radius-pill)" }}>
                 Drag or use ↑ ↓
@@ -606,8 +631,8 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                     }}
                   >
                     {/* Drag Handle */}
-                    <span style={{ color: "var(--text-tertiary)", cursor: "grab", fontSize: "0.9rem", userSelect: "none" }}>
-                      ⋮⋮
+                    <span style={{ color: "var(--text-tertiary)", cursor: "grab", display: "flex", alignItems: "center", userSelect: "none" }}>
+                      <IconGripVertical size={14} />
                     </span>
 
                     {/* Order Number Badge */}
@@ -634,8 +659,8 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                           const matchedDoc = documents.find((d) => d._id === item.id);
                           const rot = docRotations[item.id] !== undefined ? docRotations[item.id] : (matchedDoc?.rotation || 0);
                           return rot > 0 ? (
-                            <span style={{ fontSize: "0.68rem", color: "var(--text-secondary)", background: "var(--bg-surface)", border: "1px solid var(--border-default)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontWeight: 600 }}>
-                              🔄 {rot}°
+                            <span style={{ fontSize: "0.68rem", color: "var(--text-secondary)", background: "var(--bg-surface)", border: "1px solid var(--border-default)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+                              <IconRotate size={10} /> {rot}°
                             </span>
                           ) : null;
                         })()}
@@ -661,13 +686,12 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                           width: "24px",
                           height: "24px",
                           cursor: index === 0 ? "default" : "pointer",
-                          fontSize: "0.72rem",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                         }}
                       >
-                        ▲
+                        <IconChevronUp size={13} />
                       </button>
                       <button
                         type="button"
@@ -682,13 +706,12 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                           width: "24px",
                           height: "24px",
                           cursor: index === orderedItems.length - 1 ? "default" : "pointer",
-                          fontSize: "0.72rem",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                         }}
                       >
-                        ▼
+                        <IconChevronDown size={13} />
                       </button>
                       <button
                         type="button"
@@ -702,14 +725,13 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                           width: "24px",
                           height: "24px",
                           cursor: "pointer",
-                          fontSize: "0.75rem",
                           marginLeft: "0.2rem",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                         }}
                       >
-                        ✕
+                        <IconX size={12} />
                       </button>
                     </div>
                   </div>
@@ -732,9 +754,10 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                 className="btn-secondary"
                 onClick={handlePreviewMergedPdf}
                 disabled={isPreviewing || isMerging || orderedItems.length === 0}
-                style={{ width: "100%", padding: "0.65rem", fontSize: "0.86rem" }}
+                style={{ width: "100%", padding: "0.65rem", fontSize: "0.86rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.45rem" }}
               >
-                {isPreviewing ? <span className="spinner" /> : "👁️ Preview Merged PDF Portfolio"}
+                {isPreviewing ? <span className="spinner" /> : <IconEye size={15} />}
+                <span>Preview Merged PDF Portfolio</span>
               </button>
 
               <button
@@ -742,9 +765,10 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                 className="btn-primary"
                 onClick={handleMerge}
                 disabled={isMerging || isPreviewing || orderedItems.length === 0}
-                style={{ width: "100%", padding: "0.75rem", fontSize: "0.88rem" }}
+                style={{ width: "100%", padding: "0.75rem", fontSize: "0.88rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.45rem" }}
               >
-                {isMerging ? <span className="spinner" /> : "Download Combined PDF Portfolio"}
+                {isMerging ? <span className="spinner" /> : <IconDownload size={15} />}
+                <span>Download Combined PDF Portfolio</span>
               </button>
             </div>
           </div>
@@ -770,7 +794,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <div>
                 <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span>👁️</span> Merged Portfolio Live Preview
+                  <IconEye size={18} /> Merged Portfolio Live Preview
                 </h3>
                 <span style={{ fontSize: "0.8rem", color: "var(--text-tertiary)" }}>
                   {orderedItems.length} items merged in custom sequence • Inspect all pages below before downloading
@@ -779,8 +803,9 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
 
               <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
                 <a href={previewPdfUrl} download="Combined_Application_Portfolio.pdf" style={{ textDecoration: "none" }}>
-                  <button className="btn-primary" style={{ padding: "0.55rem 1.35rem", fontSize: "0.86rem" }}>
-                    ⬇️ Download Combined PDF
+                  <button className="btn-primary" style={{ padding: "0.55rem 1.35rem", fontSize: "0.86rem", display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>
+                    <IconDownload size={15} />
+                    <span>Download Combined PDF</span>
                   </button>
                 </a>
                 <button
@@ -814,7 +839,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <div>
                 <h3 style={{ fontSize: "1.15rem", fontWeight: 700, margin: 0, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span>📄</span> {previewSingleDoc.title}
+                  <IconFile size={17} /> {previewSingleDoc.title}
                 </h3>
                 <span style={{ fontSize: "0.8rem", color: "var(--text-tertiary)" }}>
                   {previewSingleDoc.customCategory || previewSingleDoc.category} Store • {previewSingleDoc.fileName}
@@ -826,24 +851,26 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                   const currentRot = docRotations[previewSingleDoc._id] !== undefined ? docRotations[previewSingleDoc._id] : (previewSingleDoc.rotation || 0);
                   return (
                     <>
-                      <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)", background: "var(--bg-secondary)", border: "1px solid var(--border-default)", padding: "0.2rem 0.6rem", borderRadius: "var(--radius-pill)", fontWeight: 600 }}>
-                        🔄 {currentRot}° Angle
+                      <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)", background: "var(--bg-secondary)", border: "1px solid var(--border-default)", padding: "0.2rem 0.6rem", borderRadius: "var(--radius-pill)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+                        <IconRotate size={12} /> {currentRot}° Angle
                       </span>
                       <button
                         type="button"
                         className="btn-secondary"
                         onClick={(e) => handleRotateDoc(e, previewSingleDoc._id, currentRot, -90)}
-                        style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
+                        style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}
                       >
-                        ↺ Rotate Left
+                        <IconRotateCcw size={13} />
+                        <span>Rotate Left</span>
                       </button>
                       <button
                         type="button"
                         className="btn-primary"
                         onClick={(e) => handleRotateDoc(e, previewSingleDoc._id, currentRot, 90)}
-                        style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
+                        style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}
                       >
-                        ↻ Rotate 90°
+                        <IconRotateCw size={13} />
+                        <span>Rotate 90°</span>
                       </button>
                     </>
                   );

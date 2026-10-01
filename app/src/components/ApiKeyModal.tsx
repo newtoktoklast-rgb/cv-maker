@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getStoredApiKey, setStoredApiKey } from "@/lib/gemini-client";
+import { IconKey, IconX, IconCheck } from "@/components/Icons";
 
 interface Props {
   isOpen: boolean;
@@ -24,7 +25,7 @@ export default function ApiKeyModal({ isOpen, onClose, onSaved }: Props) {
 
   const handleSave = () => {
     setStoredApiKey(key);
-    setSavedMsg("✓ Gemini API Key saved in browser!");
+    setSavedMsg("Gemini API Key saved in browser!");
     if (onSaved) onSaved();
     setTimeout(() => {
       onClose();
@@ -78,10 +79,9 @@ export default function ApiKeyModal({ isOpen, onClose, onSaved }: Props) {
                 alignItems: "center",
                 justifyContent: "center",
                 color: "var(--text-primary)",
-                fontSize: "1rem",
               }}
             >
-              🔑
+              <IconKey size={16} />
             </div>
             <h3 style={{ fontSize: "1.25rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
               Google Gemini API Settings
@@ -89,16 +89,19 @@ export default function ApiKeyModal({ isOpen, onClose, onSaved }: Props) {
           </div>
           <button
             onClick={onClose}
+            aria-label="Close"
             style={{
               background: "none",
               border: "none",
               color: "var(--text-tertiary)",
               cursor: "pointer",
-              fontSize: "1.2rem",
               padding: "0.2rem 0.5rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            ✕
+            <IconX size={16} />
           </button>
         </div>
 
@@ -145,8 +148,9 @@ export default function ApiKeyModal({ isOpen, onClose, onSaved }: Props) {
         </div>
 
         {savedMsg && (
-          <div style={{ color: "var(--success)", fontSize: "0.85rem", marginBottom: "1rem", textAlign: "center", fontWeight: 600 }}>
-            {savedMsg}
+          <div style={{ color: "var(--text-primary)", fontSize: "0.85rem", marginBottom: "1rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4rem", fontWeight: 600 }}>
+            <IconCheck size={14} />
+            <span>{savedMsg}</span>
           </div>
         )}
 

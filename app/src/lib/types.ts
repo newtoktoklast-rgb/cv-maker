@@ -180,19 +180,19 @@ export const dummyCVData: Omit<CVData, "userId"> = {
       id: "cust-1",
       title: "Awards & Honors",
       items: [
-        { id: "item-1", text: "🏆 1st Place Winner — Global FinTech Hackathon 2023 (out of 180+ teams)" },
-        { id: "item-2", text: "⭐ Stripe Engineering Excellence & Leadership Award (Q3 2022)" },
-        { id: "item-3", text: "🚀 Top Open-Source Contributor Award — Next.js & React ecosystem" },
+        { id: "item-1", text: "1st Place Winner — Global FinTech Hackathon 2023 (out of 180+ teams)" },
+        { id: "item-2", text: "Stripe Engineering Excellence & Leadership Award (Q3 2022)" },
+        { id: "item-3", text: "Top Open-Source Contributor Award — Next.js & React ecosystem" },
       ],
     },
     {
       id: "cust-2",
       title: "Hobbies & Interests",
       items: [
-        { id: "item-4", text: "📷 Landscape & Astro Photography (featured in Outdoor Magazine)" },
-        { id: "item-5", text: "♟️ Competitive Chess (USCF 1980 rating)" },
-        { id: "item-6", text: "🏃 Marathon Runner (Completed Boston Marathon 2023 & NYC Marathon 2024)" },
-        { id: "item-7", text: "☕ Specialty Coffee Roasting and Espresso brewing" },
+        { id: "item-4", text: "Landscape & Astro Photography (featured in Outdoor Magazine)" },
+        { id: "item-5", text: "Competitive Chess (USCF 1980 rating)" },
+        { id: "item-6", text: "Marathon Runner (Completed Boston Marathon 2023 & NYC Marathon 2024)" },
+        { id: "item-7", text: "Specialty Coffee Roasting and Espresso brewing" },
       ],
     },
     {

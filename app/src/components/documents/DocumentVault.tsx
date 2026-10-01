@@ -2,19 +2,37 @@
 
 import { useState } from "react";
 import { UserDocument, DocCategory } from "@/lib/types";
+import {
+  IconFile,
+  IconMail,
+  IconSchool,
+  IconCertificate,
+  IconGraduationCap,
+  IconBuilding,
+  IconFolder,
+  IconStar,
+  IconPlus,
+  IconDownload,
+  IconTrash,
+  IconEye,
+  IconRotateCcw,
+  IconRotateCw,
+  IconX,
+  IconCheck,
+} from "@/components/Icons";
 
 interface Props {
   initialDocuments: UserDocument[];
   onOpenMerger?: () => void;
 }
 
-const BUILTIN_CATEGORIES: { id: DocCategory; label: string; icon: string }[] = [
-  { id: "CV", label: "CV / Resume Store", icon: "📄" },
-  { id: "Cover Letter", label: "Cover Letter Store", icon: "✉️" },
-  { id: "Grade8", label: "Grade 8", icon: "🏫" },
-  { id: "Grade10", label: "Grade 10", icon: "📜" },
-  { id: "Grade12", label: "Grade 12", icon: "🎓" },
-  { id: "University Certificate", label: "University Certificate", icon: "🏛️" },
+const BUILTIN_CATEGORIES: { id: DocCategory; label: string; icon: React.FC<{ size?: number }> }[] = [
+  { id: "CV", label: "CV / Resume Store", icon: IconFile },
+  { id: "Cover Letter", label: "Cover Letter Store", icon: IconMail },
+  { id: "Grade8", label: "Grade 8", icon: IconSchool },
+  { id: "Grade10", label: "Grade 10", icon: IconCertificate },
+  { id: "Grade12", label: "Grade 12", icon: IconGraduationCap },
+  { id: "University Certificate", label: "University Certificate", icon: IconBuilding },
 ];
 
 export default function DocumentVault({ initialDocuments, onOpenMerger }: Props) {
@@ -247,9 +265,12 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
             padding: "0.45rem 1.1rem",
             fontSize: "0.84rem",
             whiteSpace: "nowrap",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.45rem",
           }}
         >
-          <span>📁</span>
+          <IconFolder size={15} />
           <span>All Documents</span>
           <span
             style={{
@@ -267,6 +288,7 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
         {BUILTIN_CATEGORIES.map((cat) => {
           const count = documents.filter((d) => d.category === cat.id).length;
           const isActive = selectedCategory === cat.id;
+          const IconComp = cat.icon;
           return (
             <button
               key={cat.id}
@@ -277,9 +299,12 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                 padding: "0.45rem 1.1rem",
                 fontSize: "0.84rem",
                 whiteSpace: "nowrap",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.45rem",
               }}
             >
-              <span>{cat.icon}</span>
+              <IconComp size={15} />
               <span>{cat.label}</span>
               <span
                 style={{
@@ -311,9 +336,12 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                 padding: "0.45rem 1.1rem",
                 fontSize: "0.84rem",
                 whiteSpace: "nowrap",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.45rem",
               }}
             >
-              <span>⭐</span>
+              <IconStar size={14} />
               <span>{cName}</span>
               <span
                 style={{
@@ -349,7 +377,7 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
           }}
           title="Add new category store"
         >
-          <span style={{ fontSize: "1.1rem", lineHeight: 1 }}>+</span>
+          <IconPlus size={14} />
           <span>Add Custom Category</span>
         </button>
       </div>
@@ -371,8 +399,8 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
           }}
         >
           <div>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>
-              📁 {selectedCategory} Category Store
+            <h3 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <IconFolder size={18} /> {selectedCategory} Category Store
             </h3>
             <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", margin: "0.2rem 0 0" }}>
               {filteredDocs.length} {filteredDocs.length === 1 ? "document / page" : "documents / pages"} stored in this category. You can add as many documents or photo pages as needed.
@@ -393,8 +421,8 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
       {/* Documents Grid */}
       {filteredDocs.length === 0 ? (
         <div className="dashboard-empty glass-card" style={{ padding: "3rem 1.5rem" }}>
-          <div className="dashboard-empty-icon" style={{ fontSize: "2.5rem" }}>
-            📑
+          <div className="dashboard-empty-icon" style={{ display: "flex", justifyContent: "center" }}>
+            <IconFile size={36} />
           </div>
           <h3 style={{ marginTop: "1rem" }}>No documents in {selectedCategory === "ALL" ? "this vault" : selectedCategory}</h3>
           <p style={{ maxWidth: 420, margin: "0.5rem auto 1.5rem" }}>
@@ -543,9 +571,10 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                   <button
                     className="btn-secondary"
                     onClick={() => setPreviewDoc(doc)}
-                    style={{ flex: 1, padding: "0.45rem", fontSize: "0.8rem" }}
+                    style={{ flex: 1, padding: "0.45rem", fontSize: "0.8rem", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.3rem" }}
                   >
-                    Preview
+                    <IconEye size={13} />
+                    <span>Preview</span>
                   </button>
                   <a
                     href={doc.fileUrl}
@@ -554,17 +583,18 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                     download={doc.fileName}
                     style={{ textDecoration: "none" }}
                   >
-                    <button className="btn-secondary" style={{ padding: "0.45rem 0.75rem", fontSize: "0.8rem" }}>
-                      ⬇️
+                    <button className="btn-secondary" style={{ padding: "0.45rem 0.75rem", fontSize: "0.8rem", display: "flex", alignItems: "center", justifyContent: "center" }} title="Download file">
+                      <IconDownload size={14} />
                     </button>
                   </a>
                   <button
                     className="btn-danger"
                     onClick={() => handleDelete(doc._id)}
                     disabled={deletingId === doc._id}
-                    style={{ padding: "0.45rem 0.75rem", fontSize: "0.8rem" }}
+                    style={{ padding: "0.45rem 0.75rem", fontSize: "0.8rem", display: "flex", alignItems: "center", justifyContent: "center" }}
+                    title="Delete document"
                   >
-                    {deletingId === doc._id ? "..." : "🗑️"}
+                    {deletingId === doc._id ? "..." : <IconTrash size={14} />}
                   </button>
                 </div>
 
@@ -583,7 +613,9 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
             style={{ maxWidth: 440, padding: "1.5rem" }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-              <h3 style={{ fontSize: "1.15rem", fontWeight: 700, margin: 0 }}>➕ Add New Category Store</h3>
+              <h3 style={{ fontSize: "1.15rem", fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                <IconPlus size={16} /> Add New Category Store
+              </h3>
               <button
                 onClick={() => setShowAddCatModal(false)}
                 style={{ background: "none", border: "none", color: "var(--text-tertiary)", fontSize: "1.5rem", cursor: "pointer" }}
@@ -688,13 +720,13 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                     <optgroup label="Custom Categories">
                       {customCategories.map((cName) => (
                         <option key={cName} value={cName}>
-                          ⭐ {cName}
+                          {cName}
                         </option>
                       ))}
                     </optgroup>
                   )}
 
-                  <option value="NEW_CUSTOM">➕ Add New Category Name...</option>
+                  <option value="NEW_CUSTOM">+ Add New Category Name...</option>
                 </select>
               </div>
 
@@ -770,8 +802,8 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                   Select 1 or multiple files/photos at once (e.g. Page 1, Page 2, Page 3 of certificate). Max 10MB per file.
                 </span>
                 {files.length > 0 && (
-                  <div style={{ marginTop: "0.5rem", fontSize: "0.82rem", color: "var(--text-primary)", fontWeight: 600 }}>
-                    ✓ Ready to upload {files.length} {files.length === 1 ? "file/page" : "files/pages"} into this category
+                  <div style={{ marginTop: "0.5rem", fontSize: "0.82rem", color: "var(--text-primary)", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                    <IconCheck size={14} /> Ready to upload {files.length} {files.length === 1 ? "file/page" : "files/pages"} into this category
                   </div>
                 )}
               </div>
@@ -822,17 +854,19 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                   type="button"
                   className="btn-secondary"
                   onClick={() => handleRotate(previewDoc._id, previewDoc.rotation || 0, -90)}
-                  style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
+                  style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem", display: "inline-flex", alignItems: "center", gap: "0.25rem" }}
                 >
-                  ↺ Rotate Left
+                  <IconRotateCcw size={13} />
+                  <span>Rotate Left</span>
                 </button>
                 <button
                   type="button"
                   className="btn-secondary"
                   onClick={() => handleRotate(previewDoc._id, previewDoc.rotation || 0, 90)}
-                  style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
+                  style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem", display: "inline-flex", alignItems: "center", gap: "0.25rem" }}
                 >
-                  ↻ Rotate Right
+                  <IconRotateCw size={13} />
+                  <span>Rotate Right</span>
                 </button>
                 <button
                   onClick={() => setPreviewDoc(null)}
