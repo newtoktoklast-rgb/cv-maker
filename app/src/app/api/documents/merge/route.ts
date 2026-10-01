@@ -1242,23 +1242,25 @@ async function appendCoverLetterToPdf(mergedPdf: PDFDocument, letter: CoverLette
 }
 
 // Fetch file helper
-async function fetchFileBuffer(url: string, db: any): Promise<Buffer> {
+async function fetchFileBuffer(url: string, db: any, origin?: string): Promise<Buffer> {
   if (url.startsWith("data:")) {
     const base64Data = url.split(",")[1];
     return Buffer.from(base64Data, "base64");
   }
 
   if (url.includes("/api/documents/file/")) {
-    const fileId = url.split("/api/documents/file/")[1];
+    const fileId = url.split("/api/documents/file/")[1]?.split("?")[0]?.split("/")[0];
     if (fileId && ObjectId.isValid(fileId)) {
       const fileDoc = await db.collection("document_files").findOne({ _id: new ObjectId(fileId) });
       if (fileDoc && fileDoc.data) {
-        return Buffer.from(fileDoc.data.buffer || fileDoc.data);
+        const rawData = fileDoc.data.buffer || (typeof fileDoc.data.value === "function" ? fileDoc.data.value(true) : fileDoc.data);
+        return Buffer.from(rawData);
       }
     }
   }
 
-  const fetchUrl = url.startsWith("/") ? `http://localhost:3000${url}` : url;
+  const baseOrigin = origin || "http://127.0.0.1:3000";
+  const fetchUrl = url.startsWith("/") ? `${baseOrigin}${url}` : url;
   const res = await fetch(fetchUrl);
   if (!res.ok) throw new Error(`Failed to fetch file from ${url}`);
   const arrayBuf = await res.arrayBuffer();
@@ -1281,6 +1283,9 @@ export async function POST(req: NextRequest) {
       letterPdfBase64?: string;
     };
 
+    const host = req.headers.get("host");
+    const proto = req.headers.get("x-forwarded-proto") || "http";
+    const origin = host ? `${proto}://${host}` : req.nextUrl?.origin || "http://127.0.0.1:3000";
 
     const db = client.db();
     const mergedPdf = await PDFDocument.create();
@@ -1288,9 +1293,9 @@ export async function POST(req: NextRequest) {
     const processSingleDocument = async (doc: any) => {
       if (!doc || !doc.fileUrl) return;
       try {
-        const fileBuf = await fetchFileBuffer(doc.fileUrl, db);
+        const fileBuf = await fetchFileBuffer(doc.fileUrl, db, origin);
 
-        if (doc.fileType === "pdf" || doc.fileName.toLowerCase().endsWith(".pdf")) {
+        if (doc.fileType === "pdf" || doc.fileName?.toLowerCase().endsWith(".pdf")) {
           const externalPdf = await PDFDocument.load(fileBuf);
           const copiedPages = await mergedPdf.copyPages(externalPdf, externalPdf.getPageIndices());
           const rotationDeg = (doc.rotation || 0) % 360;
@@ -1301,8 +1306,7 @@ export async function POST(req: NextRequest) {
             }
             mergedPdf.addPage(p);
           }
-        }
- else {
+        } else {
           // Image document (JPG / PNG)
           const page = mergedPdf.addPage([595.28, 841.89]);
           const fontBold = await mergedPdf.embedFont(StandardFonts.HelveticaBold);
@@ -1332,8 +1336,8 @@ export async function POST(req: NextRequest) {
           // Embed image
           let embeddedImage;
           if (
-            doc.fileName.toLowerCase().endsWith(".png") ||
-            doc.fileUrl.startsWith("data:image/png")
+            doc.fileName?.toLowerCase().endsWith(".png") ||
+            doc.fileUrl?.startsWith("data:image/png")
           ) {
             embeddedImage = await mergedPdf.embedPng(fileBuf);
           } else {
@@ -1431,7 +1435,6 @@ export async function POST(req: NextRequest) {
         }
       }
 
-
       if (documentIds && Array.isArray(documentIds) && documentIds.length > 0) {
         const validObjectIds = documentIds.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
         if (validObjectIds.length > 0) {
@@ -1445,6 +1448,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    if (mergedPdf.getPageCount() === 0) {
+      return NextResponse.json(
+        { error: "No document pages could be processed. Please make sure your items are available." },
+        { status: 400 }
+      );
+    }
 
     // Save final combined PDF
     const finalPdfBytes = await mergedPdf.save();
@@ -1453,7 +1462,7 @@ export async function POST(req: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": 'attachment; filename="Application_Portfolio.pdf"',
+        "Content-Disposition": 'inline; filename="Application_Portfolio.pdf"',
       },
     });
 

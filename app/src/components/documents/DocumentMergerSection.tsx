@@ -2,10 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { UserDocument, CVData, CoverLetterData } from "@/lib/types";
-import CVPreview from "@/components/CVPreview";
-import CoverLetterPreview from "@/components/cover-letter/CoverLetterPreview";
-import { captureHtmlToPdfBase64 } from "@/lib/pdfCapture";
+import { UserDocument } from "@/lib/types";
 import {
   IconEye,
   IconDownload,
@@ -57,17 +54,22 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
   const queryCvId = searchParams?.get("selectedCvId");
   const queryLetterId = searchParams?.get("selectedLetterId");
 
+  // Selection states
+  const [includeCv, setIncludeCv] = useState<boolean>(cvs.length > 0);
   const [selectedCvId, setSelectedCvId] = useState<string>(queryCvId || cvs[0]?._id || "");
+
+  const [includeLetter, setIncludeLetter] = useState<boolean>(coverLetters.length > 0);
   const [selectedLetterId, setSelectedLetterId] = useState<string>(queryLetterId || coverLetters[0]?._id || "");
+
   const [selectedDocIds, setSelectedDocIds] = useState<string[]>(documents.map((d) => d._id));
   const [orderedItems, setOrderedItems] = useState<OrderedSequenceItem[]>([]);
   const [isMerging, setIsMerging] = useState(false);
+  const [isPreviewing, setIsPreviewing] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
-  const [fullCvData, setFullCvData] = useState<CVData | null>(null);
-  const [fullLetterData, setFullLetterData] = useState<CoverLetterData | null>(null);
-
+  const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewSingleDoc, setPreviewSingleDoc] = useState<UserDocument | null>(null);
   const [docRotations, setDocRotations] = useState<Record<string, number>>({});
 
@@ -87,65 +89,16 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
     }
   };
 
-
-
   useEffect(() => {
     if (queryCvId && cvs.some((c) => c._id === queryCvId)) {
       setSelectedCvId(queryCvId);
+      setIncludeCv(true);
     }
     if (queryLetterId && coverLetters.some((l) => l._id === queryLetterId)) {
       setSelectedLetterId(queryLetterId);
+      setIncludeLetter(true);
     }
   }, [queryCvId, queryLetterId, cvs, coverLetters]);
-
-
-  // Fetch full CVData when selectedCvId changes
-  useEffect(() => {
-    if (!selectedCvId) {
-      setFullCvData(null);
-      return;
-    }
-    fetch(`/api/cv/${selectedCvId}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data) setFullCvData(data);
-      })
-      .catch(() => {});
-  }, [selectedCvId]);
-
-  // Fetch full CoverLetterData when selectedLetterId changes
-  useEffect(() => {
-    if (!selectedLetterId) {
-      setFullLetterData(null);
-      return;
-    }
-    fetch(`/api/cover-letter/${selectedLetterId}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data) setFullLetterData(data);
-      })
-      .catch(() => {});
-  }, [selectedLetterId]);
-
-  // Helper to capture live DOM preview snapshot
-  const getRenderedSnapshots = async () => {
-    let cvPdfBase64: string | undefined;
-    let letterPdfBase64: string | undefined;
-
-    const cvEl = document.querySelector("#merger-cv-preview-container .cv-preview-page") as HTMLElement;
-    if (cvEl) {
-      const b64 = await captureHtmlToPdfBase64(cvEl);
-      if (b64) cvPdfBase64 = b64;
-    }
-
-    const clEl = (document.querySelector("#merger-cl-preview-container .cl-preview-page") as HTMLElement) || (document.querySelector("#merger-cl-preview-container .cv-preview-page") as HTMLElement);
-    if (clEl) {
-      const b64 = await captureHtmlToPdfBase64(clEl);
-      if (b64) letterPdfBase64 = b64;
-    }
-
-    return { cvPdfBase64, letterPdfBase64 };
-  };
 
   // Sync selected items with orderedItems state preserving user custom order
   useEffect(() => {
@@ -158,7 +111,8 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
         return `${tId.charAt(0).toUpperCase() + tId.slice(1)} Template`;
       };
 
-      if (selectedCvId) {
+      // 1. CV item
+      if (includeCv && selectedCvId) {
         const cv = cvs.find((c) => c._id === selectedCvId);
         if (cv) {
           const key = `cv_${cv._id}`;
@@ -178,7 +132,8 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
         }
       }
 
-      if (selectedLetterId) {
+      // 2. Cover Letter item
+      if (includeLetter && selectedLetterId) {
         const letter = coverLetters.find((l) => l._id === selectedLetterId);
         if (letter) {
           const key = `cover_letter_${letter._id}`;
@@ -198,6 +153,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
         }
       }
 
+      // 3. Vault Documents
       documents.forEach((doc) => {
         if (selectedDocIds.includes(doc._id)) {
           const key = `document_${doc._id}`;
@@ -217,14 +173,24 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
         }
       });
 
-      // Keep only items that are still selected
-      return newSequence.filter(item => 
-        (item.type === 'cv' && selectedCvId === item.id) ||
-        (item.type === 'cover_letter' && selectedLetterId === item.id) ||
-        (item.type === 'document' && selectedDocIds.includes(item.id))
+      // Keep only items that are currently active and preserve previous user ordering
+      const validItems = newSequence.filter((item) =>
+        (item.type === "cv" && includeCv && selectedCvId === item.id) ||
+        (item.type === "cover_letter" && includeLetter && selectedLetterId === item.id) ||
+        (item.type === "document" && selectedDocIds.includes(item.id))
       );
+
+      // Re-order by previous sequence where possible
+      const orderedExisting = prevItems.filter((p) =>
+        validItems.some((v) => v.type === p.type && v.id === p.id)
+      );
+      const newlyAdded = validItems.filter(
+        (v) => !orderedExisting.some((p) => p.type === v.type && p.id === v.id)
+      );
+
+      return [...orderedExisting, ...newlyAdded];
     });
-  }, [selectedCvId, selectedLetterId, selectedDocIds, cvs, coverLetters, documents]);
+  }, [includeCv, selectedCvId, includeLetter, selectedLetterId, selectedDocIds, cvs, coverLetters, documents]);
 
   const toggleDocSelection = (id: string) => {
     setSelectedDocIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
@@ -237,7 +203,6 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
   const deselectAllDocs = () => {
     setSelectedDocIds([]);
   };
-
 
   const moveItemUp = (index: number) => {
     if (index === 0) return;
@@ -262,9 +227,11 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
   };
 
   const removeItem = (item: OrderedSequenceItem) => {
-    if (item.type === "cv") setSelectedCvId("");
-    else if (item.type === "cover_letter") setSelectedLetterId("");
-    else if (item.type === "document") {
+    if (item.type === "cv") {
+      setIncludeCv(false);
+    } else if (item.type === "cover_letter") {
+      setIncludeLetter(false);
+    } else if (item.type === "document") {
       setSelectedDocIds((prev) => prev.filter((id) => id !== item.id));
     }
   };
@@ -304,23 +271,19 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
         type: item.type,
       }));
 
-      const { cvPdfBase64, letterPdfBase64 } = await getRenderedSnapshots();
-
       const res = await fetch("/api/documents/merge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           orderedItems: payloadItems,
-          cvId: selectedCvId || undefined,
-          coverLetterId: selectedLetterId || undefined,
+          cvId: (includeCv && selectedCvId) ? selectedCvId : undefined,
+          coverLetterId: (includeLetter && selectedLetterId) ? selectedLetterId : undefined,
           documentIds: selectedDocIds,
-          cvPdfBase64,
-          letterPdfBase64,
         }),
       });
 
       if (!res.ok) {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         throw new Error(err.error || "Failed to merge PDF documents");
       }
 
@@ -332,7 +295,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
       document.body.appendChild(link);
       link.click();
       link.remove();
-      window.URL.revokeObjectURL(downloadUrl);
+      setTimeout(() => window.URL.revokeObjectURL(downloadUrl), 5000);
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to generate merged PDF.");
     } finally {
@@ -340,13 +303,9 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
     }
   };
 
-  const [isPreviewing, setIsPreviewing] = useState(false);
-  const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
-
   const handlePreviewMergedPdf = async () => {
     if (orderedItems.length === 0) {
-      setErrorMsg("Please select at least one item (CV, Cover Letter, or certificate document) to merge.");
+      setErrorMsg("Please select at least one item (CV, Cover Letter, or certificate document) to preview.");
       return;
     }
 
@@ -359,28 +318,25 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
         type: item.type,
       }));
 
-      const { cvPdfBase64, letterPdfBase64 } = await getRenderedSnapshots();
-
       const res = await fetch("/api/documents/merge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           orderedItems: payloadItems,
-          cvId: selectedCvId || undefined,
-          coverLetterId: selectedLetterId || undefined,
+          cvId: (includeCv && selectedCvId) ? selectedCvId : undefined,
+          coverLetterId: (includeLetter && selectedLetterId) ? selectedLetterId : undefined,
           documentIds: selectedDocIds,
-          cvPdfBase64,
-          letterPdfBase64,
         }),
       });
 
       if (!res.ok) {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         throw new Error(err.error || "Failed to generate merged PDF preview");
       }
 
       const blob = await res.blob();
-      const pdfBlobUrl = window.URL.createObjectURL(blob);
+      const pdfBlob = new Blob([blob], { type: "application/pdf" });
+      const pdfBlobUrl = window.URL.createObjectURL(pdfBlob);
       setPreviewPdfUrl(pdfBlobUrl);
       setShowPreviewModal(true);
     } catch (err: any) {
@@ -389,7 +345,6 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
       setIsPreviewing(false);
     }
   };
-
 
   return (
     <div style={{ marginTop: "1rem" }}>
@@ -416,7 +371,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
               style={{ width: "auto", padding: "0.6rem 1.15rem", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "0.45rem" }}
             >
               {isPreviewing ? <span className="spinner" /> : <IconEye size={15} />}
-              <span>Preview Merged PDF</span>
+              <span>{isPreviewing ? "Building Preview..." : "Preview Merged PDF"}</span>
             </button>
 
             <button
@@ -426,12 +381,11 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
               style={{ width: "auto", padding: "0.6rem 1.35rem", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "0.45rem" }}
             >
               {isMerging ? <span className="spinner" /> : <IconDownload size={15} />}
-              <span>Download Combined PDF</span>
+              <span>{isMerging ? "Merging..." : "Download Combined PDF"}</span>
             </button>
           </div>
         </div>
       </div>
-
 
       {errorMsg && (
         <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", padding: "0.75rem 1rem", borderRadius: "var(--radius-md)", fontSize: "0.85rem", marginBottom: "1.25rem" }}>
@@ -440,156 +394,263 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
       )}
 
       {/* Grid Workspace Layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(310px, 1fr))", gap: "1.5rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1.5rem" }}>
         
-        {/* Column 1: Document Vault Stores Selection */}
-        <div className="glass-card" style={{ padding: "1.25rem", display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.85rem" }}>
-            <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.5rem", margin: 0 }}>
-              <IconFolder size={17} /> 1. Select Documents ({selectedDocIds.length}/{documents.length})
-            </h3>
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button onClick={selectAllDocs} type="button" style={{ background: "none", border: "none", color: "var(--text-primary)", fontSize: "0.78rem", cursor: "pointer", fontWeight: 600 }}>
-                Select All
-              </button>
-              <span style={{ color: "var(--text-tertiary)", fontSize: "0.78rem" }}>|</span>
-              <button onClick={deselectAllDocs} type="button" style={{ background: "none", border: "none", color: "var(--text-tertiary)", fontSize: "0.78rem", cursor: "pointer" }}>
-                Clear
-              </button>
+        {/* Column 1: Document Vault & Application Materials Selection */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+
+          {/* Section A: Resume / CV Selection */}
+          <div className="glass-card" style={{ padding: "1.25rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                <input
+                  type="checkbox"
+                  id="includeCvCheckbox"
+                  checked={includeCv && !!selectedCvId}
+                  disabled={cvs.length === 0}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setIncludeCv(checked);
+                    if (checked && !selectedCvId && cvs.length > 0) {
+                      setSelectedCvId(cvs[0]._id);
+                    }
+                  }}
+                  style={{ cursor: "pointer", width: 16, height: 16 }}
+                />
+                <label htmlFor="includeCvCheckbox" style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer", margin: 0 }}>
+                  Include Resume / CV
+                </label>
+              </div>
+              <span style={{ fontSize: "0.72rem", color: "var(--text-secondary)", background: "var(--bg-secondary)", border: "1px solid var(--border-default)", padding: "0.15rem 0.5rem", borderRadius: "var(--radius-pill)" }}>
+                {cvs.length} {cvs.length === 1 ? "Resume" : "Resumes"} available
+              </span>
             </div>
+
+            {cvs.length === 0 ? (
+              <p style={{ fontSize: "0.8rem", color: "var(--text-tertiary)", margin: 0 }}>
+                No CV created yet. You can create one in the Resume Studio tab.
+              </p>
+            ) : (
+              <div>
+                <select
+                  value={selectedCvId}
+                  disabled={!includeCv}
+                  onChange={(e) => {
+                    setSelectedCvId(e.target.value);
+                    if (!includeCv) setIncludeCv(true);
+                  }}
+                  className="input-field"
+                  style={{ width: "100%", fontSize: "0.85rem", padding: "0.5rem 0.75rem", opacity: includeCv ? 1 : 0.6 }}
+                >
+                  {cvs.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.personalInfo.fullName || "Untitled Resume"} — {c.personalInfo.title || "Profile"} ({c.templateId.toUpperCase()})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
-
-          {documents.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "2rem 1rem", color: "var(--text-tertiary)" }}>
-              <p>No documents stored yet.</p>
-              <span style={{ fontSize: "0.8rem" }}>Upload Grade 8, 10, 12, Uni certificates, or custom recommendation letters in the Document Vault tab.</span>
+          {/* Section B: Cover Letter Selection */}
+          <div className="glass-card" style={{ padding: "1.25rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                <input
+                  type="checkbox"
+                  id="includeLetterCheckbox"
+                  checked={includeLetter && !!selectedLetterId}
+                  disabled={coverLetters.length === 0}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setIncludeLetter(checked);
+                    if (checked && !selectedLetterId && coverLetters.length > 0) {
+                      setSelectedLetterId(coverLetters[0]._id);
+                    }
+                  }}
+                  style={{ cursor: "pointer", width: 16, height: 16 }}
+                />
+                <label htmlFor="includeLetterCheckbox" style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer", margin: 0 }}>
+                  Include Cover Letter
+                </label>
+              </div>
+              <span style={{ fontSize: "0.72rem", color: "var(--text-secondary)", background: "var(--bg-secondary)", border: "1px solid var(--border-default)", padding: "0.15rem 0.5rem", borderRadius: "var(--radius-pill)" }}>
+                {coverLetters.length} {coverLetters.length === 1 ? "Letter" : "Letters"} available
+              </span>
             </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem", overflowY: "auto", flex: 1, maxHeight: 440 }}>
-              {Array.from(
-                documents.reduce((map, doc) => {
-                  const key = doc.category === "Custom" ? doc.customCategory || "Custom Category" : doc.category;
-                  if (!map.has(key)) map.set(key, []);
-                  map.get(key)!.push(doc);
-                  return map;
-                }, new Map<string, UserDocument[]>()).entries()
-              ).map(([catName, catDocs]) => {
-                const allCatSelected = catDocs.every((d) => selectedDocIds.includes(d._id));
-                const toggleCatGroup = () => {
-                  const catIds = catDocs.map((d) => d._id);
-                  if (allCatSelected) {
-                    setSelectedDocIds((prev) => prev.filter((id) => !catIds.includes(id)));
-                  } else {
-                    setSelectedDocIds((prev) => Array.from(new Set([...prev, ...catIds])));
-                  }
-                };
 
-                return (
-                  <div key={catName} style={{ background: "var(--bg-secondary)", borderRadius: "var(--radius-md)", padding: "0.75rem", border: "1px solid var(--border-default)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                      <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-primary)", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
-                        <IconFolder size={14} />
-                        <span>{catName} ({catDocs.length} {catDocs.length === 1 ? "file" : "files"})</span>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={toggleCatGroup}
-                        style={{ background: "none", border: "none", color: allCatSelected ? "var(--text-primary)" : "var(--text-tertiary)", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
-                      >
-                        {allCatSelected ? "Deselect Store" : "+ Select Entire Store"}
-                      </button>
-                    </div>
+            {coverLetters.length === 0 ? (
+              <p style={{ fontSize: "0.8rem", color: "var(--text-tertiary)", margin: 0 }}>
+                No Cover Letter created yet. You can create one in Cover Letter Studio.
+              </p>
+            ) : (
+              <div>
+                <select
+                  value={selectedLetterId}
+                  disabled={!includeLetter}
+                  onChange={(e) => {
+                    setSelectedLetterId(e.target.value);
+                    if (!includeLetter) setIncludeLetter(true);
+                  }}
+                  className="input-field"
+                  style={{ width: "100%", fontSize: "0.85rem", padding: "0.5rem 0.75rem", opacity: includeLetter ? 1 : 0.6 }}
+                >
+                  {coverLetters.map((l) => (
+                    <option key={l._id} value={l._id}>
+                      {l.recipient?.companyName ? `${l.recipient.companyName} — ` : ""}{l.title || "Job Application Letter"}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
-                      {catDocs.map((doc) => {
-                        const isSelected = selectedDocIds.includes(doc._id);
-                        const effectiveRotation = docRotations[doc._id] !== undefined ? docRotations[doc._id] : (doc.rotation || 0);
-
-                        return (
-                          <label
-                            key={doc._id}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.75rem",
-                              padding: "0.55rem 0.75rem",
-                              borderRadius: "var(--radius-sm)",
-                              background: isSelected ? "var(--bg-surface)" : "transparent",
-                              border: isSelected ? "1px solid var(--border-strong)" : "1px solid var(--border-subtle)",
-                              cursor: "pointer",
-                              transition: "all 0.15s ease",
-                            }}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => toggleDocSelection(doc._id)}
-                            />
-                            <div style={{ flex: 1 }}>
-                              <div style={{ fontSize: "0.84rem", fontWeight: 600, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                                <span>{doc.title}</span>
-                                {effectiveRotation > 0 && (
-                                  <span style={{ fontSize: "0.68rem", background: "var(--bg-secondary)", color: "var(--text-secondary)", border: "1px solid var(--border-default)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
-                                    <IconRotate size={10} /> {effectiveRotation}°
-                                  </span>
-                                )}
-                              </div>
-                              <div style={{ fontSize: "0.72rem", color: "var(--text-tertiary)" }}>
-                                {doc.fileName} • {doc.fileType.toUpperCase()}
-                              </div>
-                            </div>
-                            <div style={{ display: "flex", gap: "0.35rem", alignItems: "center" }}>
-                              <button
-                                type="button"
-                                className="btn-secondary"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-                                  setPreviewSingleDoc(doc);
-                                }}
-                                title="Inspect & preview document"
-                                style={{
-                                  fontSize: "0.72rem",
-                                  padding: "0.2rem 0.5rem",
-                                  whiteSpace: "nowrap",
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: "0.25rem",
-                                }}
-                              >
-                                <IconEye size={12} />
-                                <span>Preview</span>
-                              </button>
-                              <button
-                                type="button"
-                                className="btn-secondary"
-                                onClick={(e) => handleRotateDoc(e, doc._id, effectiveRotation)}
-                                title="Rotate page 90 degrees clockwise"
-                                style={{
-                                  fontSize: "0.72rem",
-                                  padding: "0.2rem 0.5rem",
-                                  whiteSpace: "nowrap",
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: "0.25rem",
-                                }}
-                              >
-                                <IconRotate size={12} />
-                                <span>{effectiveRotation > 0 ? `${effectiveRotation}°` : "Rotate"}</span>
-                              </button>
-                            </div>
-
-                          </label>
-                        );
-                      })}
-                    </div>
-
-                  </div>
-                );
-              })}
+          {/* Section C: Supporting Documents & Attachments Selection */}
+          <div className="glass-card" style={{ padding: "1.25rem", display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.85rem" }}>
+              <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.5rem", margin: 0 }}>
+                <IconFolder size={17} /> Supporting Vault Documents ({selectedDocIds.length}/{documents.length})
+              </h3>
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <button onClick={selectAllDocs} type="button" style={{ background: "none", border: "none", color: "var(--text-primary)", fontSize: "0.78rem", cursor: "pointer", fontWeight: 600 }}>
+                  Select All
+                </button>
+                <span style={{ color: "var(--text-tertiary)", fontSize: "0.78rem" }}>|</span>
+                <button onClick={deselectAllDocs} type="button" style={{ background: "none", border: "none", color: "var(--text-tertiary)", fontSize: "0.78rem", cursor: "pointer" }}>
+                  Clear
+                </button>
+              </div>
             </div>
-          )}
+
+            {documents.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "1.5rem 1rem", color: "var(--text-tertiary)" }}>
+                <p style={{ margin: 0, fontSize: "0.85rem" }}>No documents uploaded to Vault yet.</p>
+                <span style={{ fontSize: "0.78rem" }}>Upload certificates or recommendations in the Document Vault tab.</span>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem", overflowY: "auto", maxHeight: 360 }}>
+                {Array.from(
+                  documents.reduce((map, doc) => {
+                    const key = doc.category === "Custom" ? doc.customCategory || "Custom Category" : doc.category;
+                    if (!map.has(key)) map.set(key, []);
+                    map.get(key)!.push(doc);
+                    return map;
+                  }, new Map<string, UserDocument[]>()).entries()
+                ).map(([catName, catDocs]) => {
+                  const allCatSelected = catDocs.every((d) => selectedDocIds.includes(d._id));
+                  const toggleCatGroup = () => {
+                    const catIds = catDocs.map((d) => d._id);
+                    if (allCatSelected) {
+                      setSelectedDocIds((prev) => prev.filter((id) => !catIds.includes(id)));
+                    } else {
+                      setSelectedDocIds((prev) => Array.from(new Set([...prev, ...catIds])));
+                    }
+                  };
+
+                  return (
+                    <div key={catName} style={{ background: "var(--bg-secondary)", borderRadius: "var(--radius-md)", padding: "0.75rem", border: "1px solid var(--border-default)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                        <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-primary)", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
+                          <IconFolder size={14} />
+                          <span>{catName} ({catDocs.length} {catDocs.length === 1 ? "file" : "files"})</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={toggleCatGroup}
+                          style={{ background: "none", border: "none", color: allCatSelected ? "var(--text-primary)" : "var(--text-tertiary)", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
+                        >
+                          {allCatSelected ? "Deselect Group" : "+ Select Group"}
+                        </button>
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+                        {catDocs.map((doc) => {
+                          const isSelected = selectedDocIds.includes(doc._id);
+                          const effectiveRotation = docRotations[doc._id] !== undefined ? docRotations[doc._id] : (doc.rotation || 0);
+
+                          return (
+                            <label
+                              key={doc._id}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.75rem",
+                                padding: "0.55rem 0.75rem",
+                                borderRadius: "var(--radius-sm)",
+                                background: isSelected ? "var(--bg-surface)" : "transparent",
+                                border: isSelected ? "1px solid var(--border-strong)" : "1px solid var(--border-subtle)",
+                                cursor: "pointer",
+                                transition: "all 0.15s ease",
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => toggleDocSelection(doc._id)}
+                              />
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: "0.84rem", fontWeight: 600, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                                  <span>{doc.title}</span>
+                                  {effectiveRotation > 0 && (
+                                    <span style={{ fontSize: "0.68rem", background: "var(--bg-secondary)", color: "var(--text-secondary)", border: "1px solid var(--border-default)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+                                      <IconRotate size={10} /> {effectiveRotation}°
+                                    </span>
+                                  )}
+                                </div>
+                                <div style={{ fontSize: "0.72rem", color: "var(--text-tertiary)" }}>
+                                  {doc.fileName} • {doc.fileType.toUpperCase()}
+                                </div>
+                              </div>
+                              <div style={{ display: "flex", gap: "0.35rem", alignItems: "center" }}>
+                                <button
+                                  type="button"
+                                  className="btn-secondary"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setPreviewSingleDoc(doc);
+                                  }}
+                                  title="Inspect & preview document"
+                                  style={{
+                                    fontSize: "0.72rem",
+                                    padding: "0.2rem 0.5rem",
+                                    whiteSpace: "nowrap",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "0.25rem",
+                                  }}
+                                >
+                                  <IconEye size={12} />
+                                  <span>Preview</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn-secondary"
+                                  onClick={(e) => handleRotateDoc(e, doc._id, effectiveRotation)}
+                                  title="Rotate page 90 degrees clockwise"
+                                  style={{
+                                    fontSize: "0.72rem",
+                                    padding: "0.2rem 0.5rem",
+                                    whiteSpace: "nowrap",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "0.25rem",
+                                  }}
+                                >
+                                  <IconRotate size={12} />
+                                  <span>{effectiveRotation > 0 ? `${effectiveRotation}°` : "Rotate"}</span>
+                                </button>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Column 2: Live Rearrangeable Page Sequence (Drag & Drop or Move Up/Down) */}
@@ -605,8 +666,10 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
             </div>
 
             {orderedItems.length === 0 ? (
-              <div style={{ padding: "2rem 1rem", textAlign: "center", color: "var(--text-tertiary)", fontSize: "0.85rem" }}>
-                No items selected yet. Check items on the left to build your portfolio.
+              <div style={{ padding: "2.5rem 1rem", textAlign: "center", color: "var(--text-tertiary)", fontSize: "0.85rem", background: "var(--bg-secondary)", borderRadius: "var(--radius-md)", border: "1px dashed var(--border-default)" }}>
+                <IconPackage size={28} style={{ opacity: 0.5, marginBottom: "0.5rem" }} />
+                <div>No items selected yet.</div>
+                <div style={{ fontSize: "0.78rem", marginTop: "0.25rem" }}>Check your Resume, Cover Letter, or Vault Documents on the left to assemble your portfolio.</div>
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: 420, overflowY: "auto", paddingRight: "0.25rem" }}>
@@ -669,7 +732,6 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                         {item.subtitle}
                       </div>
                     </div>
-
 
                     {/* Move Up & Move Down Buttons */}
                     <div style={{ display: "flex", gap: "0.25rem", alignItems: "center" }}>
@@ -744,7 +806,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
               <span>Sequence Order:</span>
               <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>
-                {orderedItems.length} {orderedItems.length === 1 ? "item" : "items"} in custom order
+                {orderedItems.length} {orderedItems.length === 1 ? "item" : "items"} ready to combine
               </span>
             </div>
 
@@ -757,7 +819,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                 style={{ width: "100%", padding: "0.65rem", fontSize: "0.86rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.45rem" }}
               >
                 {isPreviewing ? <span className="spinner" /> : <IconEye size={15} />}
-                <span>Preview Merged PDF Portfolio</span>
+                <span>{isPreviewing ? "Generating Preview..." : "Preview Merged PDF Portfolio"}</span>
               </button>
 
               <button
@@ -768,7 +830,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                 style={{ width: "100%", padding: "0.75rem", fontSize: "0.88rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.45rem" }}
               >
                 {isMerging ? <span className="spinner" /> : <IconDownload size={15} />}
-                <span>Download Combined PDF Portfolio</span>
+                <span>{isMerging ? "Merging & Downloading..." : "Download Combined PDF Portfolio"}</span>
               </button>
             </div>
           </div>
@@ -802,7 +864,21 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
               </div>
 
               <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-                <a href={previewPdfUrl} download="Combined_Application_Portfolio.pdf" style={{ textDecoration: "none" }}>
+                <a
+                  href={previewPdfUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-secondary"
+                  style={{ textDecoration: "none", padding: "0.55rem 1rem", fontSize: "0.84rem", display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
+                >
+                  <IconEye size={14} />
+                  <span>Open in New Tab</span>
+                </a>
+                <a
+                  href={previewPdfUrl}
+                  download="Combined_Application_Portfolio.pdf"
+                  style={{ textDecoration: "none" }}
+                >
                   <button className="btn-primary" style={{ padding: "0.55rem 1.35rem", fontSize: "0.86rem", display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>
                     <IconDownload size={15} />
                     <span>Download Combined PDF</span>
@@ -817,12 +893,18 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
               </div>
             </div>
 
-            <div style={{ flex: 1, background: "var(--bg-secondary)", borderRadius: "var(--radius-md)", overflow: "hidden", border: "1px solid var(--border-default)" }}>
-              <iframe
-                src={previewPdfUrl}
-                title="Merged PDF Portfolio Live Preview"
+            <div style={{ flex: 1, background: "var(--bg-secondary)", borderRadius: "var(--radius-md)", overflow: "hidden", border: "1px solid var(--border-default)", position: "relative" }}>
+              <object
+                data={previewPdfUrl}
+                type="application/pdf"
                 style={{ width: "100%", height: "100%", border: "none" }}
-              />
+              >
+                <iframe
+                  src={previewPdfUrl}
+                  title="Merged PDF Portfolio Live Preview"
+                  style={{ width: "100%", height: "100%", border: "none" }}
+                />
+              </object>
             </div>
           </div>
         </div>
@@ -887,7 +969,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
             <div style={{ flex: 1, background: "var(--bg-secondary)", borderRadius: "var(--radius-md)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", border: "1px solid var(--border-default)" }}>
               {(() => {
                 const currentRot = docRotations[previewSingleDoc._id] !== undefined ? docRotations[previewSingleDoc._id] : (previewSingleDoc.rotation || 0);
-                const isImage = previewSingleDoc.fileType === "image" || previewSingleDoc.fileName.match(/\.(jpg|jpeg|png|webp|gif)$/i);
+                const isImage = previewSingleDoc.fileType === "image" || previewSingleDoc.fileName?.match(/\.(jpg|jpeg|png|webp|gif)$/i);
 
                 return isImage ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
@@ -920,22 +1002,6 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
           </div>
         </div>
       )}
-
-      <div style={{ position: "absolute", left: "-9999px", top: "-9999px", width: "210mm", minHeight: "297mm", pointerEvents: "none", opacity: 0 }}>
-        {fullCvData && (
-          <div id="merger-cv-preview-container" style={{ width: "210mm", minHeight: "297mm" }}>
-            <CVPreview data={fullCvData} />
-          </div>
-        )}
-        {fullLetterData && (
-          <div id="merger-cl-preview-container" style={{ width: "210mm", minHeight: "297mm" }}>
-            <CoverLetterPreview data={fullLetterData} />
-          </div>
-        )}
-      </div>
     </div>
   );
 }
-
-
-
