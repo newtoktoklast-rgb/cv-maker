@@ -415,7 +415,6 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
                     style={{
                       flex: 1.5,
                       padding: "0.85rem 1.6rem",
-                      background: "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)",
                       minWidth: "220px",
                     }}
                     onClick={handleGenerateWithGemini}
@@ -765,7 +764,6 @@ export default function CoverLetterBuilder({ initial, letterId, userCVs, initial
                     className="btn-primary builder-nav-btn"
                     onClick={() => handleSave(true)}
                     disabled={saving}
-                    style={{ background: "linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)" }}
                     title="Capture rendered PDF snapshot and open in Merge PDF Studio with zero mismatch"
                   >
                     {saving ? <span className="spinner" /> : "✨"}

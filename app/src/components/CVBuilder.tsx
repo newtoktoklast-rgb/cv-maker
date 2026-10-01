@@ -619,7 +619,6 @@ export default function CVBuilder({
                       type="button"
                       className="btn-primary dummy-banner-btn"
                       onClick={() => fileInputRef.current?.click()}
-                      style={{ background: "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)" }}
                     >
                       📄 Upload Resume PDF
                     </button>
@@ -940,7 +939,6 @@ export default function CVBuilder({
                   onClick={() => handleSave(true)}
                   disabled={saving}
                   type="button"
-                  style={{ background: "linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)" }}
                   title="Capture rendered PDF snapshot and open in Merge PDF Studio with zero mismatch"
                 >
                   {saving ? <span className="spinner" /> : "✨"}

@@ -42,9 +42,9 @@ export default function ApiKeyModal({ isOpen, onClose, onSaved }: Props) {
       style={{
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(9, 10, 16, 0.85)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
+        backgroundColor: "rgba(0, 0, 0, 0.4)",
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -72,15 +72,16 @@ export default function ApiKeyModal({ isOpen, onClose, onSaved }: Props) {
                 width: 32,
                 height: 32,
                 borderRadius: "var(--radius-sm)",
-                background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
+                background: "var(--bg-secondary)",
+                border: "1px solid var(--border-default)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "white",
+                color: "var(--text-primary)",
                 fontSize: "1rem",
               }}
             >
-              ✨
+              🔑
             </div>
             <h3 style={{ fontSize: "1.25rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
               Google Gemini API Settings
@@ -102,7 +103,7 @@ export default function ApiKeyModal({ isOpen, onClose, onSaved }: Props) {
         </div>
 
         <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "1.25rem" }}>
-          Gemini 2.0 Flash powers direct PDF resume extraction and AI cover letter generation. Enter your API key below or set <code style={{ background: "rgba(255,255,255,0.08)", padding: "2px 6px", borderRadius: 4 }}>GEMINI_API_KEY</code> in your environment.
+          Gemini 2.0 Flash powers direct PDF resume extraction and AI cover letter generation. Enter your API key below or set <code style={{ background: "var(--bg-secondary)", padding: "2px 6px", borderRadius: 4 }}>GEMINI_API_KEY</code> in your environment.
         </p>
 
         <div className="form-group" style={{ marginBottom: "1.25rem" }}>

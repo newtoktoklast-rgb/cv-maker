@@ -156,9 +156,9 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
               type: "cv",
               title: cv.personalInfo?.fullName ? `Resume — ${cv.personalInfo.fullName}` : "Resume / CV",
               subtitle: `${tLabel} • ${cv.personalInfo?.title || "Professional Profile"}`,
-              borderColor: "#6366f1",
-              badgeBg: "rgba(99, 102, 241, 0.2)",
-              badgeColor: "#a5b4fc",
+              borderColor: "var(--border-default)",
+              badgeBg: "var(--bg-secondary)",
+              badgeColor: "var(--text-primary)",
             }
           );
         }
@@ -176,9 +176,9 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
               type: "cover_letter",
               title: letter.recipient?.companyName ? `Cover Letter — ${letter.recipient.companyName}` : letter.title,
               subtitle: `${tLabel} • ${letter.recipient?.jobTitle || "Job Application"}`,
-              borderColor: "#f59e0b",
-              badgeBg: "rgba(245, 158, 11, 0.2)",
-              badgeColor: "#fcd34d",
+              borderColor: "var(--border-default)",
+              badgeBg: "var(--bg-secondary)",
+              badgeColor: "var(--text-primary)",
             }
           );
         }
@@ -195,9 +195,9 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
               type: "document",
               title: doc.title,
               subtitle: `${storeName} Store • ${doc.fileType.toUpperCase()}`,
-              borderColor: "#10b981",
-              badgeBg: "rgba(16, 185, 129, 0.2)",
-              badgeColor: "#6ee7b7",
+              borderColor: "var(--border-default)",
+              badgeBg: "var(--bg-secondary)",
+              badgeColor: "var(--text-primary)",
             }
           );
         }
@@ -380,16 +380,16 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
   return (
     <div style={{ marginTop: "1rem" }}>
       {/* Workspace Header */}
-      <div className="glass-card" style={{ padding: "1.75rem", marginBottom: "1.75rem", background: "linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(52, 211, 153, 0.08) 100%)", border: "1px solid rgba(99, 102, 241, 0.25)" }}>
+      <div className="glass-card" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1.25rem" }}>
           <div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.25rem 0.75rem", borderRadius: "20px", background: "rgba(99, 102, 241, 0.2)", color: "#c7d2fe", fontSize: "0.8rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-              <span>✨ Dedicated Studio</span>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.2rem 0.65rem", borderRadius: "var(--radius-pill)", background: "var(--bg-secondary)", border: "1px solid var(--border-default)", color: "var(--text-secondary)", fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.5rem" }}>
+              <span>Dedicated Studio</span>
             </div>
-            <h2 style={{ fontSize: "1.45rem", fontWeight: 800, margin: 0, color: "white" }}>
+            <h2 style={{ fontSize: "1.35rem", fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>
               Merge PDF Studio & Custom Sequence Reorder
             </h2>
-            <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginTop: "0.35rem", maxWidth: 620 }}>
+            <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "0.35rem", maxWidth: 620 }}>
               Select your CV, Cover Letter, and Educational/Reference Documents, then drag or use <strong>↑ Move Up / ↓ Move Down</strong> to rearrange the exact page sequence. Preview full-screen before downloading.
             </p>
           </div>
@@ -399,7 +399,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
               className="btn-secondary"
               onClick={handlePreviewMergedPdf}
               disabled={isPreviewing || isMerging || orderedItems.length === 0}
-              style={{ width: "auto", padding: "0.75rem 1.25rem", fontSize: "0.88rem", borderColor: "rgba(99, 102, 241, 0.4)", background: "rgba(99, 102, 241, 0.12)", color: "#c7d2fe" }}
+              style={{ width: "auto", padding: "0.6rem 1.15rem", fontSize: "0.85rem" }}
             >
               {isPreviewing ? <span className="spinner" /> : "👁️ Preview Merged PDF"}
             </button>
@@ -408,9 +408,9 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
               className="btn-primary"
               onClick={handleMerge}
               disabled={isMerging || isPreviewing || orderedItems.length === 0}
-              style={{ width: "auto", padding: "0.75rem 1.5rem", fontSize: "0.88rem" }}
+              style={{ width: "auto", padding: "0.6rem 1.35rem", fontSize: "0.85rem" }}
             >
-              {isMerging ? <span className="spinner" /> : "⚡ Download Combined PDF"}
+              {isMerging ? <span className="spinner" /> : "Download Combined PDF"}
             </button>
           </div>
         </div>
@@ -418,7 +418,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
 
 
       {errorMsg && (
-        <div style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#fca5a5", padding: "0.85rem 1.1rem", borderRadius: "10px", fontSize: "0.88rem", marginBottom: "1.5rem" }}>
+        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", padding: "0.75rem 1rem", borderRadius: "var(--radius-md)", fontSize: "0.85rem", marginBottom: "1.25rem" }}>
           {errorMsg}
         </div>
       )}
@@ -429,11 +429,11 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
         {/* Column 1: Document Vault Stores Selection */}
         <div className="glass-card" style={{ padding: "1.25rem", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.85rem" }}>
-            <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#34d399", display: "flex", alignItems: "center", gap: "0.5rem", margin: 0 }}>
-              <span>📂</span> 1. Select Resumes & Portfolio Documents ({selectedDocIds.length}/{documents.length})
+            <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.5rem", margin: 0 }}>
+              <span>📁</span> 1. Select Documents ({selectedDocIds.length}/{documents.length})
             </h3>
             <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button onClick={selectAllDocs} type="button" style={{ background: "none", border: "none", color: "#a5b4fc", fontSize: "0.78rem", cursor: "pointer", fontWeight: 600 }}>
+              <button onClick={selectAllDocs} type="button" style={{ background: "none", border: "none", color: "var(--text-primary)", fontSize: "0.78rem", cursor: "pointer", fontWeight: 600 }}>
                 Select All
               </button>
               <span style={{ color: "var(--text-tertiary)", fontSize: "0.78rem" }}>|</span>
@@ -450,7 +450,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
               <span style={{ fontSize: "0.8rem" }}>Upload Grade 8, 10, 12, Uni certificates, or custom recommendation letters in the Document Vault tab.</span>
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem", overflowY: "auto", flex: 1, maxHeight: 440 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem", overflowY: "auto", flex: 1, maxHeight: 440 }}>
               {Array.from(
                 documents.reduce((map, doc) => {
                   const key = doc.category === "Custom" ? doc.customCategory || "Custom Category" : doc.category;
@@ -470,21 +470,21 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                 };
 
                 return (
-                  <div key={catName} style={{ background: "rgba(15, 23, 42, 0.4)", borderRadius: "8px", padding: "0.75rem", border: "1px solid var(--border-default)" }}>
+                  <div key={catName} style={{ background: "var(--bg-secondary)", borderRadius: "var(--radius-md)", padding: "0.75rem", border: "1px solid var(--border-default)" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                      <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#a5b4fc" }}>
-                        📁 {catName} ({catDocs.length} {catDocs.length === 1 ? "file" : "files"})
+                      <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-primary)" }}>
+                        {catName} ({catDocs.length} {catDocs.length === 1 ? "file" : "files"})
                       </span>
                       <button
                         type="button"
                         onClick={toggleCatGroup}
-                        style={{ background: "none", border: "none", color: allCatSelected ? "#34d399" : "var(--text-tertiary)", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
+                        style={{ background: "none", border: "none", color: allCatSelected ? "var(--text-primary)" : "var(--text-tertiary)", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
                       >
                         {allCatSelected ? "✓ Deselect Store" : "+ Select Entire Store"}
                       </button>
                     </div>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
                       {catDocs.map((doc) => {
                         const isSelected = selectedDocIds.includes(doc._id);
                         const effectiveRotation = docRotations[doc._id] !== undefined ? docRotations[doc._id] : (doc.rotation || 0);
@@ -497,10 +497,11 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                               alignItems: "center",
                               gap: "0.75rem",
                               padding: "0.55rem 0.75rem",
-                              borderRadius: "6px",
-                              background: isSelected ? "rgba(16, 185, 129, 0.15)" : "rgba(30, 41, 59, 0.6)",
-                              border: isSelected ? "1px solid #10b981" : "1px solid rgba(255,255,255,0.05)",
+                              borderRadius: "var(--radius-sm)",
+                              background: isSelected ? "var(--bg-surface)" : "transparent",
+                              border: isSelected ? "1px solid var(--border-strong)" : "1px solid var(--border-subtle)",
                               cursor: "pointer",
+                              transition: "all 0.15s ease",
                             }}
                           >
                             <input
@@ -509,21 +510,22 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                               onChange={() => toggleDocSelection(doc._id)}
                             />
                             <div style={{ flex: 1 }}>
-                              <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "white", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <div style={{ fontSize: "0.84rem", fontWeight: 600, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
                                 <span>{doc.title}</span>
                                 {effectiveRotation > 0 && (
-                                  <span style={{ fontSize: "0.7rem", background: "rgba(245, 158, 11, 0.2)", color: "#fcd34d", padding: "0.1rem 0.45rem", borderRadius: "10px", fontWeight: 600 }}>
-                                    🔄 {effectiveRotation}° Rotated
+                                  <span style={{ fontSize: "0.68rem", background: "var(--bg-secondary)", color: "var(--text-secondary)", border: "1px solid var(--border-default)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontWeight: 600 }}>
+                                    🔄 {effectiveRotation}°
                                   </span>
                                 )}
                               </div>
-                              <div style={{ fontSize: "0.74rem", color: "var(--text-tertiary)" }}>
+                              <div style={{ fontSize: "0.72rem", color: "var(--text-tertiary)" }}>
                                 {doc.fileName} • {doc.fileType.toUpperCase()}
                               </div>
                             </div>
-                            <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
+                            <div style={{ display: "flex", gap: "0.35rem", alignItems: "center" }}>
                               <button
                                 type="button"
+                                className="btn-secondary"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   e.preventDefault();
@@ -531,32 +533,21 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                                 }}
                                 title="Inspect & preview document"
                                 style={{
-                                  background: "rgba(52, 211, 153, 0.15)",
-                                  border: "1px solid rgba(52, 211, 153, 0.35)",
-                                  color: "#6ee7b7",
                                   fontSize: "0.72rem",
-                                  padding: "0.2rem 0.55rem",
-                                  borderRadius: "6px",
-                                  cursor: "pointer",
-                                  fontWeight: 600,
+                                  padding: "0.2rem 0.5rem",
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                👁️ Preview
+                                Preview
                               </button>
                               <button
                                 type="button"
+                                className="btn-secondary"
                                 onClick={(e) => handleRotateDoc(e, doc._id, effectiveRotation)}
                                 title="Rotate page 90 degrees clockwise"
                                 style={{
-                                  background: "rgba(99, 102, 241, 0.15)",
-                                  border: "1px solid rgba(99, 102, 241, 0.35)",
-                                  color: "#a5b4fc",
                                   fontSize: "0.72rem",
                                   padding: "0.2rem 0.5rem",
-                                  borderRadius: "6px",
-                                  cursor: "pointer",
-                                  fontWeight: 600,
                                   whiteSpace: "nowrap",
                                 }}
                               >
@@ -576,14 +567,14 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
           )}
         </div>
 
-        {/* Column 3: Live Rearrangeable Page Sequence (Drag & Drop or Move Up/Down) */}
-        <div className="glass-card" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "rgba(15, 23, 42, 0.85)" }}>
+        {/* Column 2: Live Rearrangeable Page Sequence (Drag & Drop or Move Up/Down) */}
+        <div className="glass-card" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.85rem" }}>
-              <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "white", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <span>📦</span> PDF Page Order ({orderedItems.length})
               </h3>
-              <span style={{ fontSize: "0.72rem", color: "#a5b4fc", background: "rgba(99, 102, 241, 0.15)", padding: "0.2rem 0.5rem", borderRadius: "10px" }}>
+              <span style={{ fontSize: "0.72rem", color: "var(--text-secondary)", background: "var(--bg-secondary)", border: "1px solid var(--border-default)", padding: "0.2rem 0.5rem", borderRadius: "var(--radius-pill)" }}>
                 Drag or use ↑ ↓
               </span>
             </div>
@@ -593,7 +584,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                 No items selected yet. Check items on the left to build your portfolio.
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.55rem", maxHeight: 420, overflowY: "auto", paddingRight: "0.25rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: 420, overflowY: "auto", paddingRight: "0.25rem" }}>
                 {orderedItems.map((item, index) => (
                   <div
                     key={`${item.type}_${item.id}`}
@@ -606,9 +597,9 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                       alignItems: "center",
                       gap: "0.6rem",
                       padding: "0.6rem 0.75rem",
-                      borderRadius: "8px",
-                      background: "rgba(30, 41, 59, 0.8)",
-                      border: `1px solid ${item.borderColor}`,
+                      borderRadius: "var(--radius-sm)",
+                      background: "var(--bg-secondary)",
+                      border: "1px solid var(--border-default)",
                       cursor: "grab",
                       opacity: draggedIndex === index ? 0.4 : 1,
                       transition: "all 0.15s ease",
@@ -622,12 +613,12 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                     {/* Order Number Badge */}
                     <span
                       style={{
-                        fontSize: "0.76rem",
+                        fontSize: "0.72rem",
                         fontWeight: 700,
                         padding: "0.15rem 0.45rem",
-                        borderRadius: "12px",
-                        background: item.badgeBg,
-                        color: item.badgeColor,
+                        borderRadius: "var(--radius-pill)",
+                        background: "var(--text-primary)",
+                        color: "var(--bg-surface)",
                         minWidth: "26px",
                         textAlign: "center",
                       }}
@@ -637,13 +628,13 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
 
                     {/* Item Details */}
                     <div style={{ flex: 1, overflow: "hidden" }}>
-                      <div style={{ fontSize: "0.84rem", fontWeight: 600, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                      <div style={{ fontSize: "0.84rem", fontWeight: 600, color: "var(--text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: "0.4rem" }}>
                         <span>{item.title}</span>
                         {item.type === "document" && (() => {
                           const matchedDoc = documents.find((d) => d._id === item.id);
                           const rot = docRotations[item.id] !== undefined ? docRotations[item.id] : (matchedDoc?.rotation || 0);
                           return rot > 0 ? (
-                            <span style={{ fontSize: "0.68rem", color: "#fcd34d", background: "rgba(245, 158, 11, 0.2)", padding: "0.1rem 0.35rem", borderRadius: "8px", fontWeight: 600 }}>
+                            <span style={{ fontSize: "0.68rem", color: "var(--text-secondary)", background: "var(--bg-surface)", border: "1px solid var(--border-default)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontWeight: 600 }}>
                               🔄 {rot}°
                             </span>
                           ) : null;
@@ -656,21 +647,21 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
 
 
                     {/* Move Up & Move Down Buttons */}
-                    <div style={{ display: "flex", gap: "0.2rem", alignItems: "center" }}>
+                    <div style={{ display: "flex", gap: "0.25rem", alignItems: "center" }}>
                       <button
                         type="button"
                         onClick={() => moveItemUp(index)}
                         disabled={index === 0}
                         title="Move Up"
                         style={{
-                          background: "rgba(255, 255, 255, 0.08)",
-                          border: "none",
-                          color: index === 0 ? "rgba(255,255,255,0.2)" : "white",
+                          background: "var(--bg-surface)",
+                          border: "1px solid var(--border-default)",
+                          color: index === 0 ? "var(--text-tertiary)" : "var(--text-primary)",
                           borderRadius: "4px",
                           width: "24px",
                           height: "24px",
                           cursor: index === 0 ? "default" : "pointer",
-                          fontSize: "0.75rem",
+                          fontSize: "0.72rem",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -684,14 +675,14 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                         disabled={index === orderedItems.length - 1}
                         title="Move Down"
                         style={{
-                          background: "rgba(255, 255, 255, 0.08)",
-                          border: "none",
-                          color: index === orderedItems.length - 1 ? "rgba(255,255,255,0.2)" : "white",
+                          background: "var(--bg-surface)",
+                          border: "1px solid var(--border-default)",
+                          color: index === orderedItems.length - 1 ? "var(--text-tertiary)" : "var(--text-primary)",
                           borderRadius: "4px",
                           width: "24px",
                           height: "24px",
                           cursor: index === orderedItems.length - 1 ? "default" : "pointer",
-                          fontSize: "0.75rem",
+                          fontSize: "0.72rem",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -704,9 +695,9 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                         onClick={() => removeItem(item)}
                         title="Remove from Sequence"
                         style={{
-                          background: "rgba(239, 68, 68, 0.15)",
-                          border: "none",
-                          color: "#fca5a5",
+                          background: "var(--bg-surface)",
+                          border: "1px solid var(--border-default)",
+                          color: "var(--text-tertiary)",
                           borderRadius: "4px",
                           width: "24px",
                           height: "24px",
@@ -730,7 +721,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
           <div style={{ borderTop: "1px solid var(--border-default)", paddingTop: "1.25rem", marginTop: "1rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
               <span>Sequence Order:</span>
-              <span style={{ fontWeight: 700, color: "#34d399" }}>
+              <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>
                 {orderedItems.length} {orderedItems.length === 1 ? "item" : "items"} in custom order
               </span>
             </div>
@@ -741,7 +732,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                 className="btn-secondary"
                 onClick={handlePreviewMergedPdf}
                 disabled={isPreviewing || isMerging || orderedItems.length === 0}
-                style={{ width: "100%", padding: "0.75rem", fontSize: "0.88rem", borderColor: "rgba(99, 102, 241, 0.4)", background: "rgba(99, 102, 241, 0.12)", color: "#c7d2fe" }}
+                style={{ width: "100%", padding: "0.65rem", fontSize: "0.86rem" }}
               >
                 {isPreviewing ? <span className="spinner" /> : "👁️ Preview Merged PDF Portfolio"}
               </button>
@@ -751,9 +742,9 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                 className="btn-primary"
                 onClick={handleMerge}
                 disabled={isMerging || isPreviewing || orderedItems.length === 0}
-                style={{ width: "100%", padding: "0.85rem", fontSize: "0.92rem" }}
+                style={{ width: "100%", padding: "0.75rem", fontSize: "0.88rem" }}
               >
-                {isMerging ? <span className="spinner" /> : "⚡ Download Combined PDF Portfolio"}
+                {isMerging ? <span className="spinner" /> : "Download Combined PDF Portfolio"}
               </button>
             </div>
           </div>
@@ -778,7 +769,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <div>
-                <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0, color: "white", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <span>👁️</span> Merged Portfolio Live Preview
                 </h3>
                 <span style={{ fontSize: "0.8rem", color: "var(--text-tertiary)" }}>
@@ -801,7 +792,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
               </div>
             </div>
 
-            <div style={{ flex: 1, background: "#0f172a", borderRadius: "8px", overflow: "hidden", border: "1px solid var(--border-default)" }}>
+            <div style={{ flex: 1, background: "var(--bg-secondary)", borderRadius: "var(--radius-md)", overflow: "hidden", border: "1px solid var(--border-default)" }}>
               <iframe
                 src={previewPdfUrl}
                 title="Merged PDF Portfolio Live Preview"
@@ -822,7 +813,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <div>
-                <h3 style={{ fontSize: "1.15rem", fontWeight: 700, margin: 0, color: "white", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <h3 style={{ fontSize: "1.15rem", fontWeight: 700, margin: 0, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <span>📄</span> {previewSingleDoc.title}
                 </h3>
                 <span style={{ fontSize: "0.8rem", color: "var(--text-tertiary)" }}>
@@ -835,7 +826,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
                   const currentRot = docRotations[previewSingleDoc._id] !== undefined ? docRotations[previewSingleDoc._id] : (previewSingleDoc.rotation || 0);
                   return (
                     <>
-                      <span style={{ fontSize: "0.8rem", color: "#fcd34d", background: "rgba(245, 158, 11, 0.2)", padding: "0.25rem 0.65rem", borderRadius: "12px", fontWeight: 600 }}>
+                      <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)", background: "var(--bg-secondary)", border: "1px solid var(--border-default)", padding: "0.2rem 0.6rem", borderRadius: "var(--radius-pill)", fontWeight: 600 }}>
                         🔄 {currentRot}° Angle
                       </span>
                       <button
@@ -866,7 +857,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
               </div>
             </div>
 
-            <div style={{ flex: 1, background: "#0f172a", borderRadius: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+            <div style={{ flex: 1, background: "var(--bg-secondary)", borderRadius: "var(--radius-md)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", border: "1px solid var(--border-default)" }}>
               {(() => {
                 const currentRot = docRotations[previewSingleDoc._id] !== undefined ? docRotations[previewSingleDoc._id] : (previewSingleDoc.rotation || 0);
                 const isImage = previewSingleDoc.fileType === "image" || previewSingleDoc.fileName.match(/\.(jpg|jpeg|png|webp|gif)$/i);

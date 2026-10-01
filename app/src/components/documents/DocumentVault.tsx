@@ -210,12 +210,9 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                 width: "auto",
                 padding: "0.65rem 1.25rem",
                 fontSize: "0.86rem",
-                borderColor: "rgba(99, 102, 241, 0.4)",
-                background: "rgba(99, 102, 241, 0.12)",
-                color: "#c7d2fe",
               }}
             >
-              ✨ Go to Merge PDF Studio
+              Merge PDF Studio
             </button>
           )}
           <button
@@ -256,9 +253,9 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
           <span>All Documents</span>
           <span
             style={{
-              background: selectedCategory === "ALL" ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 0.08)",
+              background: "var(--bg-secondary)",
               padding: "0.1rem 0.45rem",
-              borderRadius: "10px",
+              borderRadius: "var(--radius-pill)",
               fontSize: "0.75rem",
             }}
           >
@@ -286,9 +283,9 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
               <span>{cat.label}</span>
               <span
                 style={{
-                  background: isActive ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 0.08)",
+                  background: "var(--bg-secondary)",
                   padding: "0.1rem 0.45rem",
-                  borderRadius: "10px",
+                  borderRadius: "var(--radius-pill)",
                   fontSize: "0.75rem",
                 }}
               >
@@ -314,17 +311,15 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                 padding: "0.45rem 1.1rem",
                 fontSize: "0.84rem",
                 whiteSpace: "nowrap",
-                borderColor: isActive ? "#34d399" : undefined,
-                color: isActive ? "#34d399" : undefined,
               }}
             >
               <span>⭐</span>
               <span>{cName}</span>
               <span
                 style={{
-                  background: isActive ? "rgba(52, 211, 153, 0.2)" : "rgba(255, 255, 255, 0.08)",
+                  background: "var(--bg-secondary)",
                   padding: "0.1rem 0.45rem",
-                  borderRadius: "10px",
+                  borderRadius: "var(--radius-pill)",
                   fontSize: "0.75rem",
                 }}
               >
@@ -342,9 +337,9 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
             borderRadius: "var(--radius-pill)",
             padding: "0.45rem 1rem",
             fontSize: "0.84rem",
-            background: "rgba(52, 211, 153, 0.12)",
-            border: "1px dashed rgba(52, 211, 153, 0.5)",
-            color: "#34d399",
+            background: "var(--bg-secondary)",
+            border: "1px dashed var(--border-default)",
+            color: "var(--text-secondary)",
             fontWeight: 600,
             cursor: "pointer",
             display: "flex",
@@ -369,15 +364,14 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
             alignItems: "center",
             padding: "1rem 1.25rem",
             marginBottom: "1.5rem",
-            borderRadius: "12px",
-            background: "rgba(99, 102, 241, 0.08)",
-            border: "1px solid rgba(99, 102, 241, 0.25)",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--border-default)",
             flexWrap: "wrap",
             gap: "0.75rem",
           }}
         >
           <div>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, color: "white" }}>
+            <h3 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>
               📁 {selectedCategory} Category Store
             </h3>
             <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", margin: "0.2rem 0 0" }}>
@@ -434,34 +428,35 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.85rem" }}>
                     <span
                       style={{
-                        fontSize: "0.75rem",
+                        fontSize: "0.72rem",
                         fontWeight: 600,
-                        padding: "0.2rem 0.65rem",
-                        borderRadius: "12px",
-                        background: "rgba(99, 102, 241, 0.15)",
-                        color: "#a5b4fc",
-                        border: "1px solid rgba(99, 102, 241, 0.3)",
+                        padding: "0.15rem 0.55rem",
+                        borderRadius: "var(--radius-pill)",
+                        background: "var(--bg-secondary)",
+                        color: "var(--text-secondary)",
+                        border: "1px solid var(--border-default)",
                       }}
                     >
                       {categoryBadge}
                     </span>
                     <span
                       style={{
-                        fontSize: "0.72rem",
+                        fontSize: "0.7rem",
                         fontWeight: 700,
-                        padding: "0.15rem 0.5rem",
+                        padding: "0.12rem 0.45rem",
                         borderRadius: "4px",
-                        background: isImage ? "rgba(16, 185, 129, 0.15)" : "rgba(245, 158, 11, 0.15)",
-                        color: isImage ? "#34d399" : "#fbbf24",
+                        background: "var(--bg-secondary)",
+                        color: "var(--text-primary)",
+                        border: "1px solid var(--border-default)",
                         textTransform: "uppercase",
                       }}
                     >
-                      {isImage ? "PHOTO / IMG" : "PDF"}
+                      {isImage ? "IMAGE" : "PDF"}
                     </span>
                   </div>
 
                   {/* Document Title */}
-                  <h4 style={{ fontSize: "1.05rem", fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.35rem", wordBreak: "break-word" }}>
+                  <h4 style={{ fontSize: "1rem", fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.35rem", wordBreak: "break-word" }}>
                     {doc.title}
                   </h4>
 
@@ -474,8 +469,8 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                     onClick={() => setPreviewDoc(doc)}
                     style={{
                       height: 140,
-                      borderRadius: "8px",
-                      background: "rgba(0,0,0,0.3)",
+                      borderRadius: "var(--radius-sm)",
+                      background: "var(--bg-secondary)",
                       border: "1px dashed var(--border-default)",
                       display: "flex",
                       alignItems: "center",
@@ -501,7 +496,7 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                       />
                     ) : (
                       <div style={{ textAlign: "center", color: "var(--text-secondary)" }}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: 40, height: 40, margin: "0 auto 0.25rem", color: "#fbbf24" }}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: 36, height: 36, margin: "0 auto 0.25rem", color: "var(--text-tertiary)" }}>
                           <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
                           <polyline points="14 2 14 8 20 8"/>
                           <line x1="16" y1="13" x2="8" y2="13"/>
@@ -521,7 +516,7 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                         className="btn-secondary"
                         onClick={() => handleRotate(doc._id, doc.rotation || 0, -90)}
                         title="Rotate 90° Left"
-                        style={{ padding: "0.25rem 0.55rem", fontSize: "0.76rem" }}
+                        style={{ padding: "0.22rem 0.5rem", fontSize: "0.74rem" }}
                       >
                         ↺ Rotate Left
                       </button>
@@ -530,12 +525,12 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                         className="btn-secondary"
                         onClick={() => handleRotate(doc._id, doc.rotation || 0, 90)}
                         title="Rotate 90° Right"
-                        style={{ padding: "0.25rem 0.55rem", fontSize: "0.76rem" }}
+                        style={{ padding: "0.22rem 0.5rem", fontSize: "0.74rem" }}
                       >
                         ↻ Rotate Right
                       </button>
                       {doc.rotation && doc.rotation !== 0 ? (
-                        <span style={{ fontSize: "0.75rem", color: "#34d399", fontWeight: 600, marginLeft: "auto" }}>
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: 600, marginLeft: "auto" }}>
                           {doc.rotation}°
                         </span>
                       ) : null}
@@ -612,10 +607,10 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                   style={{
                     width: "100%",
                     padding: "0.65rem 0.85rem",
-                    borderRadius: "8px",
-                    background: "rgba(15, 23, 42, 0.6)",
+                    borderRadius: "var(--radius-sm)",
+                    background: "var(--bg-surface)",
                     border: "1px solid var(--border-default)",
-                    color: "white",
+                    color: "var(--text-primary)",
                     fontSize: "0.9rem",
                   }}
                 />
@@ -648,7 +643,7 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
         <div className="modal-backdrop" onClick={() => setShowModal(false)}>
           <div className="glass-card modal-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 520, padding: "1.75rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
-              <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0 }}>Add Educational / Custom Document</h3>
+              <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>Add Educational / Custom Document</h3>
               <button
                 onClick={() => setShowModal(false)}
                 style={{ background: "none", border: "none", color: "var(--text-tertiary)", fontSize: "1.5rem", cursor: "pointer" }}
@@ -658,7 +653,7 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
             </div>
 
             {errorMsg && (
-              <div style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#fca5a5", padding: "0.75rem", borderRadius: "8px", fontSize: "0.85rem", marginBottom: "1rem" }}>
+              <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", padding: "0.75rem", borderRadius: "var(--radius-sm)", fontSize: "0.85rem", marginBottom: "1rem" }}>
                 {errorMsg}
               </div>
             )}
@@ -675,10 +670,10 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                   style={{
                     width: "100%",
                     padding: "0.65rem 0.85rem",
-                    borderRadius: "8px",
-                    background: "rgba(15, 23, 42, 0.6)",
+                    borderRadius: "var(--radius-sm)",
+                    background: "var(--bg-surface)",
                     border: "1px solid var(--border-default)",
-                    color: "white",
+                    color: "var(--text-primary)",
                     fontSize: "0.9rem",
                   }}
                 >
@@ -718,10 +713,10 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                     style={{
                       width: "100%",
                       padding: "0.65rem 0.85rem",
-                      borderRadius: "8px",
-                      background: "rgba(15, 23, 42, 0.6)",
+                      borderRadius: "var(--radius-sm)",
+                      background: "var(--bg-surface)",
                       border: "1px solid var(--border-default)",
-                      color: "white",
+                      color: "var(--text-primary)",
                       fontSize: "0.9rem",
                     }}
                   />
@@ -741,10 +736,10 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                   style={{
                     width: "100%",
                     padding: "0.65rem 0.85rem",
-                    borderRadius: "8px",
-                    background: "rgba(15, 23, 42, 0.6)",
+                    borderRadius: "var(--radius-sm)",
+                    background: "var(--bg-surface)",
                     border: "1px solid var(--border-default)",
-                    color: "white",
+                    color: "var(--text-primary)",
                     fontSize: "0.9rem",
                   }}
                 />
@@ -764,10 +759,10 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                   style={{
                     width: "100%",
                     padding: "0.65rem",
-                    borderRadius: "8px",
-                    background: "rgba(15, 23, 42, 0.6)",
+                    borderRadius: "var(--radius-sm)",
+                    background: "var(--bg-surface)",
                     border: "1px dashed var(--border-default)",
-                    color: "white",
+                    color: "var(--text-primary)",
                     fontSize: "0.85rem",
                   }}
                 />
@@ -775,7 +770,7 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
                   Select 1 or multiple files/photos at once (e.g. Page 1, Page 2, Page 3 of certificate). Max 10MB per file.
                 </span>
                 {files.length > 0 && (
-                  <div style={{ marginTop: "0.5rem", fontSize: "0.82rem", color: "#34d399", fontWeight: 600 }}>
+                  <div style={{ marginTop: "0.5rem", fontSize: "0.82rem", color: "var(--text-primary)", fontWeight: 600 }}>
                     ✓ Ready to upload {files.length} {files.length === 1 ? "file/page" : "files/pages"} into this category
                   </div>
                 )}
@@ -816,7 +811,7 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
               <div>
-                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0 }}>{previewDoc.title}</h3>
+                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>{previewDoc.title}</h3>
                 <span style={{ fontSize: "0.78rem", color: "var(--text-tertiary)" }}>
                   {previewDoc.category === "Custom" ? previewDoc.customCategory : previewDoc.category} • {previewDoc.fileName}
                 </span>
@@ -848,7 +843,7 @@ export default function DocumentVault({ initialDocuments, onOpenMerger }: Props)
               </div>
             </div>
 
-            <div style={{ flex: 1, minHeight: 400, background: "#0f172a", borderRadius: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+            <div style={{ flex: 1, minHeight: 400, background: "var(--bg-secondary)", borderRadius: "var(--radius-md)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", border: "1px solid var(--border-default)" }}>
               {previewDoc.fileType === "image" ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img

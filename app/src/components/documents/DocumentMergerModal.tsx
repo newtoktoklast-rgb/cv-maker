@@ -110,14 +110,14 @@ export default function DocumentMergerModal({ cvs, coverLetters, documents, onCl
         </div>
 
         {errorMsg && (
-          <div style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#fca5a5", padding: "0.75rem", borderRadius: "8px", fontSize: "0.85rem", marginBottom: "1rem" }}>
+          <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", padding: "0.75rem", borderRadius: "var(--radius-sm)", fontSize: "0.85rem", marginBottom: "1rem" }}>
             {errorMsg}
           </div>
         )}
 
         {/* Section 1: Resume Selection */}
         <div style={{ marginBottom: "1.5rem" }}>
-          <h4 style={{ fontSize: "0.92rem", fontWeight: 700, textTransform: "uppercase", color: "#a5b4fc", letterSpacing: "0.05em", marginBottom: "0.6rem" }}>
+          <h4 style={{ fontSize: "0.85rem", fontWeight: 700, textTransform: "uppercase", color: "var(--text-primary)", letterSpacing: "0.05em", marginBottom: "0.6rem" }}>
             1. Select Resume (CV)
           </h4>
 
@@ -131,9 +131,9 @@ export default function DocumentMergerModal({ cvs, coverLetters, documents, onCl
                   alignItems: "center",
                   gap: "0.75rem",
                   padding: "0.6rem 0.85rem",
-                  borderRadius: "8px",
-                  background: !selectedCvId ? "rgba(99, 102, 241, 0.1)" : "rgba(15, 23, 42, 0.5)",
-                  border: "1px solid var(--border-default)",
+                  borderRadius: "var(--radius-sm)",
+                  background: !selectedCvId ? "var(--bg-secondary)" : "transparent",
+                  border: !selectedCvId ? "1px solid var(--border-strong)" : "1px solid var(--border-subtle)",
                   cursor: "pointer",
                   fontSize: "0.85rem",
                 }}
@@ -157,9 +157,9 @@ export default function DocumentMergerModal({ cvs, coverLetters, documents, onCl
                       alignItems: "center",
                       gap: "0.75rem",
                       padding: "0.65rem 0.85rem",
-                      borderRadius: "8px",
-                      background: isSelected ? "rgba(99, 102, 241, 0.15)" : "rgba(15, 23, 42, 0.5)",
-                      border: isSelected ? "1px solid #6366f1" : "1px solid var(--border-default)",
+                      borderRadius: "var(--radius-sm)",
+                      background: isSelected ? "var(--bg-secondary)" : "transparent",
+                      border: isSelected ? "1px solid var(--border-strong)" : "1px solid var(--border-subtle)",
                       cursor: "pointer",
                     }}
                   >
@@ -186,7 +186,7 @@ export default function DocumentMergerModal({ cvs, coverLetters, documents, onCl
 
         {/* Section 2: Cover Letter Selection */}
         <div style={{ marginBottom: "1.5rem" }}>
-          <h4 style={{ fontSize: "0.92rem", fontWeight: 700, textTransform: "uppercase", color: "#fcd34d", letterSpacing: "0.05em", marginBottom: "0.6rem" }}>
+          <h4 style={{ fontSize: "0.85rem", fontWeight: 700, textTransform: "uppercase", color: "var(--text-primary)", letterSpacing: "0.05em", marginBottom: "0.6rem" }}>
             2. Select Cover Letter
           </h4>
 
@@ -200,9 +200,9 @@ export default function DocumentMergerModal({ cvs, coverLetters, documents, onCl
                   alignItems: "center",
                   gap: "0.75rem",
                   padding: "0.6rem 0.85rem",
-                  borderRadius: "8px",
-                  background: !selectedLetterId ? "rgba(245, 158, 11, 0.1)" : "rgba(15, 23, 42, 0.5)",
-                  border: "1px solid var(--border-default)",
+                  borderRadius: "var(--radius-sm)",
+                  background: !selectedLetterId ? "var(--bg-secondary)" : "transparent",
+                  border: !selectedLetterId ? "1px solid var(--border-strong)" : "1px solid var(--border-subtle)",
                   cursor: "pointer",
                   fontSize: "0.85rem",
                 }}
@@ -226,9 +226,9 @@ export default function DocumentMergerModal({ cvs, coverLetters, documents, onCl
                       alignItems: "center",
                       gap: "0.75rem",
                       padding: "0.65rem 0.85rem",
-                      borderRadius: "8px",
-                      background: isSelected ? "rgba(245, 158, 11, 0.15)" : "rgba(15, 23, 42, 0.5)",
-                      border: isSelected ? "1px solid #f59e0b" : "1px solid var(--border-default)",
+                      borderRadius: "var(--radius-sm)",
+                      background: isSelected ? "var(--bg-secondary)" : "transparent",
+                      border: isSelected ? "1px solid var(--border-strong)" : "1px solid var(--border-subtle)",
                       cursor: "pointer",
                     }}
                   >
@@ -256,11 +256,11 @@ export default function DocumentMergerModal({ cvs, coverLetters, documents, onCl
         {/* Section 3: Educational & Recommendation Documents */}
         <div style={{ marginBottom: "1.5rem" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
-            <h4 style={{ fontSize: "0.92rem", fontWeight: 700, textTransform: "uppercase", color: "#34d399", letterSpacing: "0.05em", margin: 0 }}>
+            <h4 style={{ fontSize: "0.85rem", fontWeight: 700, textTransform: "uppercase", color: "var(--text-primary)", letterSpacing: "0.05em", margin: 0 }}>
               3. Select Educational & Custom Certificates ({selectedDocIds.length}/{documents.length})
             </h4>
             <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button onClick={selectAllDocs} type="button" style={{ background: "none", border: "none", color: "#a5b4fc", fontSize: "0.75rem", cursor: "pointer" }}>
+              <button onClick={selectAllDocs} type="button" style={{ background: "none", border: "none", color: "var(--text-primary)", fontSize: "0.75rem", cursor: "pointer", fontWeight: 600 }}>
                 Select All
               </button>
               <span style={{ color: "var(--text-tertiary)", fontSize: "0.75rem" }}>|</span>
@@ -287,9 +287,9 @@ export default function DocumentMergerModal({ cvs, coverLetters, documents, onCl
                       alignItems: "center",
                       gap: "0.75rem",
                       padding: "0.6rem 0.85rem",
-                      borderRadius: "8px",
-                      background: isSelected ? "rgba(16, 185, 129, 0.15)" : "rgba(15, 23, 42, 0.5)",
-                      border: isSelected ? "1px solid #10b981" : "1px solid var(--border-default)",
+                      borderRadius: "var(--radius-sm)",
+                      background: isSelected ? "var(--bg-secondary)" : "transparent",
+                      border: isSelected ? "1px solid var(--border-strong)" : "1px solid var(--border-subtle)",
                       cursor: "pointer",
                     }}
                   >
@@ -307,9 +307,10 @@ export default function DocumentMergerModal({ cvs, coverLetters, documents, onCl
                           style={{
                             fontSize: "0.7rem",
                             padding: "0.1rem 0.45rem",
-                            borderRadius: "10px",
-                            background: "rgba(255,255,255,0.1)",
-                            color: "#a5b4fc",
+                            borderRadius: "var(--radius-pill)",
+                            background: "var(--bg-secondary)",
+                            border: "1px solid var(--border-default)",
+                            color: "var(--text-secondary)",
                           }}
                         >
                           {categoryBadge}
@@ -337,7 +338,7 @@ export default function DocumentMergerModal({ cvs, coverLetters, documents, onCl
             disabled={isMerging}
             style={{ width: "auto", padding: "0.65rem 1.6rem" }}
           >
-            {isMerging ? <span className="spinner" /> : "🚀"}
+            {isMerging ? <span className="spinner" /> : null}
             {isMerging ? "Merging PDF Pages..." : "Download Merged PDF"}
           </button>
         </div>
