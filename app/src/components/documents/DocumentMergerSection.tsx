@@ -256,6 +256,26 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
     setDraggedIndex(null);
   };
 
+  const buildDownloadFilename = () => {
+    // Derive the applicant's full name from the selected CV (no spaces)
+    const selectedCv = cvs.find((c) => c._id === selectedCvId);
+    const fullName = (selectedCv?.personalInfo?.fullName || "")
+      .trim()
+      .replace(/\s+/g, "");
+
+    // Build an ordered list of type slugs based on orderedItems sequence
+    const typeSlugs = orderedItems.map((item) => {
+      if (item.type === "cv") return "resume";
+      if (item.type === "cover_letter") return "coverletter";
+      // For vault documents use the document title (sanitised)
+      const doc = documents.find((d) => d._id === item.id);
+      return (doc?.title || "document").replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "");
+    });
+
+    const parts = [fullName, ...typeSlugs].filter(Boolean);
+    return parts.length > 0 ? `${parts.join("_")}.pdf` : "Combined_Application_Portfolio.pdf";
+  };
+
   const handleMerge = async () => {
     if (orderedItems.length === 0) {
       setErrorMsg("Please select at least one item (CV, Cover Letter, or certificate document) to merge.");
@@ -291,7 +311,7 @@ export default function DocumentMergerSection({ cvs, coverLetters, documents }: 
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = downloadUrl;
-      link.download = "Combined_Application_Portfolio.pdf";
+      link.download = buildDownloadFilename();
       document.body.appendChild(link);
       link.click();
       link.remove();
