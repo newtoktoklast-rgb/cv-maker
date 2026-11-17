@@ -1,0 +1,14 @@
+{
+  "name": "person-profile-mcp",
+  "version": "1.0.0",
+  "description": "Secure Model Context Protocol (MCP) server for personal documents and resume information",
+  "main": "index.mjs",
+  "type": "module",
+  "scripts": {
+    "start": "node index.mjs",
+    "generate-key": "node generate-key.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1"
+  }
+}

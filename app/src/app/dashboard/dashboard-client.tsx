@@ -7,6 +7,7 @@ import { useState, Suspense } from "react";
 import { dummyCVData, UserDocument } from "@/lib/types";
 import DocumentVault from "@/components/documents/DocumentVault";
 import DocumentMergerSection from "@/components/documents/DocumentMergerSection";
+import McpKeyManager from "@/components/mcp/McpKeyManager";
 
 interface CVSummary {
   _id: string;
@@ -37,7 +38,7 @@ const templateLabels: Record<string, string> = {
   executive: "Executive Minimalist",
 };
 
-type Tab = "resumes" | "letters" | "documents" | "merge";
+type Tab = "resumes" | "letters" | "documents" | "merge" | "mcp";
 
 export default function DashboardClient({ user, cvs, coverLetters = [], documents = [] }: Props) {
   const router = useRouter();
@@ -95,6 +96,7 @@ export default function DashboardClient({ user, cvs, coverLetters = [], document
     { id: "letters", label: "Cover Letters", count: coverLetters.length },
     { id: "documents", label: "Documents", count: documents.length },
     { id: "merge", label: "Merge PDF" },
+    { id: "mcp", label: "AI Agent & MCP" },
   ];
 
   return (
@@ -306,6 +308,10 @@ export default function DashboardClient({ user, cvs, coverLetters = [], document
           <Suspense fallback={<div style={{ display: "flex", justifyContent: "center", padding: "3rem" }}><span className="spinner" /></div>}>
             <DocumentMergerSection cvs={cvs} coverLetters={coverLetters} documents={documents} />
           </Suspense>
+        )}
+
+        {activeTab === "mcp" && (
+          <McpKeyManager />
         )}
       </main>
     </div>
