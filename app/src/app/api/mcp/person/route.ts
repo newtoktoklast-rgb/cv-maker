@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import client from "@/lib/db";
 import crypto from "crypto";
 import { ObjectId } from "mongodb";
+import { executeMcpTool, validateMcpKey } from "@/lib/mcp-core";
 
 /**
  * Extracts client key from x-api-key or Authorization Bearer header.
@@ -190,6 +191,36 @@ export async function GET(req: NextRequest) {
         error: "InternalServerError",
         message: error.message || "An unexpected error occurred.",
       },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: NextRequest) {
+  const clientKey = extractClientKey(req);
+  const userId = await validateMcpKey(clientKey);
+
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized: Invalid or missing API key." }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const toolName = body.tool || body.name;
+    const toolArgs = body.args || body.arguments || {};
+
+    if (!toolName) {
+      return NextResponse.json(
+        { error: "BadRequest", message: "Missing required 'tool' or 'name' in request body." },
+        { status: 400 }
+      );
+    }
+
+    const result = await executeMcpTool(toolName, toolArgs, userId);
+    return NextResponse.json({ success: true, result });
+  } catch (err: any) {
+    return NextResponse.json(
+      { error: "ToolExecutionError", message: err.message || "Failed to execute tool." },
       { status: 500 }
     );
   }

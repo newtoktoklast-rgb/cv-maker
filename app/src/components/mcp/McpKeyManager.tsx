@@ -468,7 +468,7 @@ export default function McpKeyManager() {
           <IconCheck />
         </div>
         <div style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-          <strong style={{ color: "var(--text-primary)" }}>Direct Cloud Security:</strong> Requests hitting your hosted website must include your unique key. Every request is isolated strictly to your account’s documents and resumes, and all access is strictly read-only.
+          <strong style={{ color: "var(--text-primary)" }}>Direct Cloud Security:</strong> Requests hitting your hosted website must include your unique key. Every request is isolated strictly to your account’s documents, resumes, and cover letters. Your AI assistant can read your documents as well as update your CV, add work experiences, adjust skills, and write cover letters directly.
         </div>
       </div>
     </div>
