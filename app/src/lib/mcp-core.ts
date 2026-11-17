@@ -1,6 +1,59 @@
 import client from "@/lib/db";
 import { ObjectId } from "mongodb";
 import crypto from "crypto";
+import zlib from "zlib";
+
+function extractTextFromPdfBuffer(buffer: Buffer): string {
+  try {
+    const raw = buffer.toString("binary");
+    const streamRegex = /stream[\r\n]+([\s\S]*?)[\r\n]+endstream/g;
+    let match;
+    const textPieces: string[] = [];
+
+    while ((match = streamRegex.exec(raw)) !== null) {
+      let streamData = Buffer.from(match[1], "binary");
+      try {
+        streamData = zlib.inflateSync(streamData);
+      } catch {
+        // stream was not deflated, use raw
+      }
+      const streamText = streamData.toString("latin1");
+      const tjRegex = /\(([^)]+)\)\s*Tj/g;
+      let tjMatch;
+      while ((tjMatch = tjRegex.exec(streamText)) !== null) {
+        textPieces.push(tjMatch[1]);
+      }
+      const arrayTjRegex = /\[(.*?)\]\s*TJ/g;
+      let arrayMatch;
+      while ((arrayMatch = arrayTjRegex.exec(streamText)) !== null) {
+        const innerRegex = /\(([^)]+)\)/g;
+        let innerMatch;
+        while ((innerMatch = innerRegex.exec(arrayMatch[1])) !== null) {
+          textPieces.push(innerMatch[1]);
+        }
+      }
+    }
+
+    const result = textPieces.join(" ").replace(/\\([()\\])/g, "$1").trim();
+    if (result && result.length > 20) {
+      return result;
+    }
+
+    // Fallback: extract any readable string sequences
+    const asciiStrings = raw.match(/[\x20-\x7E]{4,}/g);
+    if (asciiStrings && asciiStrings.length > 0) {
+      const filtered = asciiStrings
+        .filter((s) => !s.startsWith("/") && !s.includes("Font") && !s.includes("ProcSet") && !s.includes("PDF"))
+        .join(" ")
+        .slice(0, 4000);
+      if (filtered.length > 50) return filtered;
+    }
+
+    return "No readable text stream found in this PDF (it may be a scanned image or flattened).";
+  } catch (err: any) {
+    return `Could not parse PDF text: ${err.message}`;
+  }
+}
 
 export async function validateMcpKey(key: string | null): Promise<string | null> {
   if (!key || typeof key !== "string" || key.trim() === "") {
@@ -98,6 +151,17 @@ export const MCP_TOOLS = [
       type: "object",
       properties: {
         documentId: { type: "string", description: "The unique ID of the document" },
+      },
+      required: ["documentId"],
+    },
+  },
+  {
+    name: "read_document_content",
+    description: "Read the actual readable text contents inside an uploaded PDF document, certificate, diploma, or resume.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        documentId: { type: "string", description: "The unique ID or title of the document to read" },
       },
       required: ["documentId"],
     },
@@ -416,6 +480,72 @@ export async function executeMcpTool(name: string, args: Record<string, any> = {
               null,
               2
             ),
+          },
+        ],
+      };
+    }
+
+    case "read_document_content": {
+      const docId = String(args?.documentId || "");
+      let queryFilter: Record<string, unknown> = { userId };
+      try {
+        queryFilter = { userId, _id: new ObjectId(docId) };
+      } catch {
+        queryFilter = { userId, $or: [{ _id: docId }, { title: { $regex: docId, $options: "i" } }] };
+      }
+
+      const doc = await db.collection("documents").findOne(queryFilter as any);
+      if (!doc) {
+        return {
+          isError: true,
+          content: [{ type: "text", text: `Document '${docId}' not found in your account.` }],
+        };
+      }
+
+      let buffer: Buffer | null = null;
+      let contentType = doc.fileType === "image" ? "image/jpeg" : "application/pdf";
+
+      if (doc.fileUrl && doc.fileUrl.startsWith("/api/documents/file/")) {
+        const fileId = doc.fileUrl.replace("/api/documents/file/", "").split("?")[0];
+        try {
+          const fileDoc = await db.collection("document_files").findOne({ _id: new ObjectId(fileId) });
+          if (fileDoc && fileDoc.data) {
+            buffer = Buffer.from(fileDoc.data.buffer || fileDoc.data);
+            contentType = fileDoc.mimeType || contentType;
+          }
+        } catch (e) {
+          console.error("Failed to read local document_files:", e);
+        }
+      } else if (doc.fileUrl && doc.fileUrl.startsWith("http")) {
+        try {
+          const remoteRes = await fetch(doc.fileUrl);
+          if (remoteRes.ok) {
+            const arr = await remoteRes.arrayBuffer();
+            buffer = Buffer.from(arr);
+          }
+        } catch (e) {
+          console.error("Failed to fetch remote document:", e);
+        }
+      }
+
+      if (!buffer) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Found document metadata for "${doc.title}", but could not load file binary stream.`,
+            },
+          ],
+        };
+      }
+
+      const extractedText = extractTextFromPdfBuffer(buffer);
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: `📄 DOCUMENT: "${doc.title}" (${doc.fileName || "file"})\nCategory: ${doc.category}\nFile Size: ${doc.fileSize ? `${Math.round(doc.fileSize / 1024)} KB` : "unknown"}\n\n--- EXTRACTED CONTENT ---\n${extractedText}`,
           },
         ],
       };
