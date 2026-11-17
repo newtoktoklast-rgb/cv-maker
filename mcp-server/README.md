@@ -1,75 +1,65 @@
-# Personal Documents & Profile MCP Server
+# Remote Cloud MCP Server for CV Maker
 
-A secure Model Context Protocol (MCP) server that connects AI assistants (Claude Desktop, Cursor, Antigravity, etc.) to your CV Maker website documents and profile data with strict API key protection.
-
-## Security Highlights
-
-- **User Self-Service & Automatic Scoping:** Each user generates their own key directly in their Dashboard (`AI Agent & MCP` tab). The server automatically scopes all returned documents and resumes to that specific user account.
-- **Strict Read-Only:** Exposes only read tools (`get_personal_info`, `list_documents`, etc.). The AI cannot modify, overwrite, or delete documents.
-- **Instant Revocation:** If a key is revoked or regenerated in the dashboard, access is cut off immediately.
-- **Private Data Protection:** Documents cannot be accessed without a valid active key matching that user.
+Direct cloud Model Context Protocol (MCP) server built into **`https://cvmaker.pro.et`**.
 
 ---
 
-## Quick Setup (1 Minute)
+## Zero Local Setup (Pure Cloud)
 
-### 1. Generate Your Key on the Website
-1. Log in to your CV Maker dashboard.
-2. Click on the **AI Agent & MCP** tab.
+You do **not** need to run any local scripts or maintain code on your computer. Your hosted website serves MCP directly over secure HTTPS (SSE).
+
+### 1. Get Your Key
+1. Go to `https://cvmaker.pro.et/dashboard`.
+2. Open the **AI Agent & MCP** tab.
 3. Click **"Generate API Key"**.
-4. Click **"Copy Key"** (or use the one-click **"Copy Configuration"** button which gives you the full JSON).
 
 ---
 
-### 2. Configure Your AI Assistant
+### 2. Connect Your AI Assistant
 
-#### For Claude Desktop (`claude_desktop_config.json`):
-Path on Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+#### For Cursor:
+In Cursor Settings > **Features** > **MCP**:
+- **Type:** `sse`
+- **Name:** `cvmaker`
+- **URL:** `https://cvmaker.pro.et/api/mcp/sse?key=cvm_live_YOUR_KEY`
 
+Or in `.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "my-profile": {
-      "command": "node",
-      "args": ["c:/Users/HP/cv-maker/mcp-server/index.mjs"],
-      "env": {
-        "WEBSITE_URL": "http://localhost:3000",
-        "MCP_API_KEY": "cvm_live_YOUR_GENERATED_KEY"
-      }
+    "cvmaker": {
+      "url": "https://cvmaker.pro.et/api/mcp/sse?key=cvm_live_YOUR_KEY"
     }
   }
 }
 ```
 
-*(Replace `http://localhost:3000` with your live domain once your website is deployed, e.g. `https://your-domain.com`).*
-
-#### For Cursor (`.cursor/mcp.json` or Settings > Features > MCP):
-
+#### For Claude Desktop:
+In `%APPDATA%\Claude\claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "my-profile": {
-      "command": "node",
-      "args": ["c:/Users/HP/cv-maker/mcp-server/index.mjs"],
-      "env": {
-        "WEBSITE_URL": "http://localhost:3000",
-        "MCP_API_KEY": "cvm_live_YOUR_GENERATED_KEY"
-      }
+    "cvmaker": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://cvmaker.pro.et/api/mcp/sse?key=cvm_live_YOUR_KEY"
+      ]
     }
   }
 }
 ```
+*(Anthropic's `mcp-remote` bridges Claude Desktop to your live HTTPS endpoint automatically).*
 
 ---
 
 ## Available Tools
 
-| Tool | Description |
-|---|---|
-| `get_personal_info` | Retrieves your name, headline/title, email, phone, location, summary, and social links. |
-| `get_career_history` | Retrieves all employment history, education, and custom sections. |
-| `get_skills_and_languages` | Retrieves technical & soft skills (with ratings) and spoken languages. |
-| `list_documents` | Lists all uploaded certificates, resumes, and portfolio documents with categories and URLs. |
-| `get_document_details` | Inspects a specific document by its ID. |
-| `get_cover_letters` | Retrieves stored cover letters. |
-| `get_full_dossier` | Retrieves the entire profile and document portfolio in one call. |
+- `get_personal_info`: Personal details, contact, bio summary, links.
+- `get_career_history`: Work experience, education history.
+- `get_skills_and_languages`: Skills with ratings and spoken languages.
+- `list_documents`: Uploaded certificates, diplomas, portfolio files, and resumes.
+- `get_document_details`: Inspect a specific document and download link.
+- `get_cover_letters`: View tailored cover letters.
+- `get_full_dossier`: Full aggregated profile in one context request.

@@ -16,9 +16,10 @@ export default function McpKeyManager() {
   const [actionLoading, setActionLoading] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedConfig, setCopiedConfig] = useState(false);
+  const [copiedUrl, setCopiedUrl] = useState(false);
   const [showKey, setShowKey] = useState(false);
-  const [origin, setOrigin] = useState("http://localhost:3000");
-  const [activeConfigTab, setActiveConfigTab] = useState<"claude" | "cursor">("claude");
+  const [origin, setOrigin] = useState("https://cvmaker.pro.et");
+  const [activeConfigTab, setActiveConfigTab] = useState<"cursor" | "claude" | "url">("cursor");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -91,33 +92,14 @@ export default function McpKeyManager() {
     setTimeout(() => setCopiedKey(false), 2000);
   };
 
-  const claudeConfigSnippet = JSON.stringify(
-    {
-      mcpServers: {
-        "my-cv-profile": {
-          command: "node",
-          args: ["<PATH_TO_MCP_SERVER>/index.mjs"],
-          env: {
-            WEBSITE_URL: origin,
-            MCP_API_KEY: data?.key || "YOUR_GENERATED_API_KEY",
-          },
-        },
-      },
-    },
-    null,
-    2
-  );
+  const userKey = data?.key || "YOUR_GENERATED_API_KEY";
+  const remoteSseUrl = `${origin}/api/mcp/sse?key=${userKey}`;
 
   const cursorConfigSnippet = JSON.stringify(
     {
       mcpServers: {
-        "my-cv-profile": {
-          command: "node",
-          args: ["<PATH_TO_MCP_SERVER>/index.mjs"],
-          env: {
-            WEBSITE_URL: origin,
-            MCP_API_KEY: data?.key || "YOUR_GENERATED_API_KEY",
-          },
+        "cvmaker": {
+          url: remoteSseUrl,
         },
       },
     },
@@ -125,12 +107,31 @@ export default function McpKeyManager() {
     2
   );
 
-  const currentSnippet = activeConfigTab === "claude" ? claudeConfigSnippet : cursorConfigSnippet;
+  const claudeConfigSnippet = JSON.stringify(
+    {
+      mcpServers: {
+        "cvmaker": {
+          command: "npx",
+          args: ["-y", "mcp-remote", remoteSseUrl],
+        },
+      },
+    },
+    null,
+    2
+  );
+
+  const currentSnippet = activeConfigTab === "cursor" ? cursorConfigSnippet : claudeConfigSnippet;
 
   const handleCopyConfig = () => {
     navigator.clipboard.writeText(currentSnippet);
     setCopiedConfig(true);
     setTimeout(() => setCopiedConfig(false), 2000);
+  };
+
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(remoteSseUrl);
+    setCopiedUrl(true);
+    setTimeout(() => setCopiedUrl(false), 2000);
   };
 
   if (loading) {
@@ -162,11 +163,11 @@ export default function McpKeyManager() {
           </div>
           <div style={{ flex: 1 }}>
             <h2 style={{ fontSize: "1.25rem", fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>
-              AI Assistant & MCP Keys
+              Hosted AI Agent (Remote MCP)
             </h2>
             <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-              Connect your favorite AI assistant (Claude Desktop, Cursor, ChatGPT, or Antigravity) to your profile.
-              Your AI can read your resumes, work experience, and uploaded documents through the secure Model Context Protocol.
+              Connect your AI assistant (Cursor, Claude Desktop, ChatGPT, Antigravity) directly to your hosted account on{" "}
+              <strong>{origin}</strong> via Remote MCP. No local script files or downloads required!
             </p>
           </div>
         </div>
@@ -181,7 +182,7 @@ export default function McpKeyManager() {
             </h3>
             <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: 2 }}>
               {data?.hasKey
-                ? "This secret key grants read-only access to your resumes and documents."
+                ? "This secret key authenticates your AI assistant over secure HTTPS."
                 : "No active key. Generate one below to connect your AI assistant."}
             </p>
           </div>
@@ -290,7 +291,7 @@ export default function McpKeyManager() {
                 </span>
               )}
               <span>
-                <strong>Last used:</strong>{" "}
+                <strong>Last used by AI:</strong>{" "}
                 {data.lastUsedAt
                   ? new Date(data.lastUsedAt).toLocaleString("en-US", {
                       month: "short",
@@ -325,7 +326,7 @@ export default function McpKeyManager() {
         ) : (
           <div>
             <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginBottom: "1.25rem", lineHeight: 1.5 }}>
-              Click the button below to generate a secure 256-bit API key. You will be able to paste this key into your AI setup to give it direct access to your CV and documents.
+              Click below to generate your private access key. Your hosted website will serve your documents directly to your AI over secure HTTPS.
             </p>
             <button
               type="button"
@@ -340,65 +341,113 @@ export default function McpKeyManager() {
         )}
       </div>
 
-      {/* Setup Instructions & Pre-made Config */}
+      {/* Cloud MCP Configuration Options */}
       {data?.hasKey && (
         <div className="glass-card" style={{ padding: "1.75rem", borderRadius: "var(--radius-lg)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
             <h3 style={{ fontSize: "1.05rem", fontWeight: 600, color: "var(--text-primary)" }}>
-              AI Client Configuration
+              Remote Cloud Connection (No local files required)
             </h3>
-            <button
-              type="button"
-              onClick={handleCopyConfig}
-              className="btn-secondary btn-sm"
-              style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
-            >
-              {copiedConfig ? <IconCheck /> : <IconCopy />}
-              {copiedConfig ? "Copied Config!" : "Copy Configuration"}
-            </button>
+            {activeConfigTab !== "url" ? (
+              <button
+                type="button"
+                onClick={handleCopyConfig}
+                className="btn-secondary btn-sm"
+                style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
+              >
+                {copiedConfig ? <IconCheck /> : <IconCopy />}
+                {copiedConfig ? "Copied Config!" : "Copy Configuration"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCopyUrl}
+                className="btn-secondary btn-sm"
+                style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
+              >
+                {copiedUrl ? <IconCheck /> : <IconCopy />}
+                {copiedUrl ? "Copied URL!" : "Copy Endpoint URL"}
+              </button>
+            )}
           </div>
 
-          <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
-            Add this snippet to your AI assistant’s MCP settings:
-          </p>
-
           {/* Config Tabs */}
-          <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.75rem" }}>
-            <button
-              type="button"
-              className={`btn-sm ${activeConfigTab === "claude" ? "btn-primary" : "btn-secondary"}`}
-              onClick={() => setActiveConfigTab("claude")}
-              style={{ fontSize: "0.75rem" }}
-            >
-              Claude Desktop (claude_desktop_config.json)
-            </button>
+          <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.85rem" }}>
             <button
               type="button"
               className={`btn-sm ${activeConfigTab === "cursor" ? "btn-primary" : "btn-secondary"}`}
               onClick={() => setActiveConfigTab("cursor")}
               style={{ fontSize: "0.75rem" }}
             >
-              Cursor (mcp.json)
+              Cursor (Direct SSE URL)
+            </button>
+            <button
+              type="button"
+              className={`btn-sm ${activeConfigTab === "claude" ? "btn-primary" : "btn-secondary"}`}
+              onClick={() => setActiveConfigTab("claude")}
+              style={{ fontSize: "0.75rem" }}
+            >
+              Claude Desktop (npx mcp-remote)
+            </button>
+            <button
+              type="button"
+              className={`btn-sm ${activeConfigTab === "url" ? "btn-primary" : "btn-secondary"}`}
+              onClick={() => setActiveConfigTab("url")}
+              style={{ fontSize: "0.75rem" }}
+            >
+              Direct Remote URL
             </button>
           </div>
 
-          <pre
-            style={{
-              backgroundColor: "var(--bg-secondary)",
-              border: "1px solid var(--border-default)",
-              borderRadius: "var(--radius-md)",
-              padding: "1rem",
-              fontFamily: "monospace",
-              fontSize: "0.82rem",
-              color: "var(--text-primary)",
-              overflowX: "auto",
-              lineHeight: 1.4,
-            }}
-          >
-            {currentSnippet}
-          </pre>
+          {activeConfigTab === "url" ? (
+            <div
+              style={{
+                backgroundColor: "var(--bg-secondary)",
+                border: "1px solid var(--border-default)",
+                borderRadius: "var(--radius-md)",
+                padding: "1rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.75rem",
+              }}
+            >
+              <div>
+                <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)", fontWeight: 600 }}>
+                  Remote SSE Stream URL:
+                </span>
+                <div style={{ fontFamily: "monospace", fontSize: "0.85rem", color: "var(--text-primary)", wordBreak: "break-all", marginTop: 4 }}>
+                  {remoteSseUrl}
+                </div>
+              </div>
+              <div>
+                <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)", fontWeight: 600 }}>
+                  Remote JSON-RPC POST Endpoint:
+                </span>
+                <div style={{ fontFamily: "monospace", fontSize: "0.85rem", color: "var(--text-primary)", wordBreak: "break-all", marginTop: 4 }}>
+                  {origin}/api/mcp?key={userKey}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <pre
+              style={{
+                backgroundColor: "var(--bg-secondary)",
+                border: "1px solid var(--border-default)",
+                borderRadius: "var(--radius-md)",
+                padding: "1rem",
+                fontFamily: "monospace",
+                fontSize: "0.82rem",
+                color: "var(--text-primary)",
+                overflowX: "auto",
+                lineHeight: 1.4,
+              }}
+            >
+              {currentSnippet}
+            </pre>
+          )}
+
           <p style={{ fontSize: "0.78rem", color: "var(--text-tertiary)", marginTop: "0.75rem" }}>
-            * Note: Replace <code>&lt;PATH_TO_MCP_SERVER&gt;</code> with the local path to your <code>mcp-server</code> folder (e.g. <code>c:/Users/HP/cv-maker/mcp-server</code>).
+            * Connects directly to <code>{origin}</code> over HTTPS. No local server files or code repository setup needed on your client computer.
           </p>
         </div>
       )}
@@ -419,10 +468,9 @@ export default function McpKeyManager() {
           <IconCheck />
         </div>
         <div style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-          <strong style={{ color: "var(--text-primary)" }}>Private & Scoped:</strong> Each user has their own unique API key. The MCP server will strictly fetch your own resumes and documents—never another user’s data. Access is strictly read-only and can be revoked at any time.
+          <strong style={{ color: "var(--text-primary)" }}>Direct Cloud Security:</strong> Requests hitting your hosted website must include your unique key. Every request is isolated strictly to your account’s documents and resumes, and all access is strictly read-only.
         </div>
       </div>
     </div>
   );
 }
-
